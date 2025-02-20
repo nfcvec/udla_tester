@@ -2,10 +2,18 @@ from fastapi import FastAPI
 from app.database import engine
 from app.models import Base
 from app.routers import aplicacion, pantalla, funcionalidad, so, tipo_prueba, tipo_usuario, caso_prueba
+from fastapi.middleware.cors import CORSMiddleware
 
 # Create the FastAPI app instance
 app = FastAPI()
-
+# Add CORS middleware to allow all origins
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 # Create the database tables
 Base.metadata.create_all(bind=engine)
 

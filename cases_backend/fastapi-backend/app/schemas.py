@@ -17,6 +17,7 @@ class Aplicacion(AplicacionBase):
 
     class Config:
         orm_mode = True
+        from_attributes = True
 
 class PantallaBase(BaseModel):
     nombre: str
@@ -33,6 +34,7 @@ class Pantalla(PantallaBase):
 
     class Config:
         orm_mode = True
+        from_attributes = True
 
 class FuncionalidadBase(BaseModel):
     nombre: str
@@ -49,6 +51,7 @@ class Funcionalidad(FuncionalidadBase):
 
     class Config:
         orm_mode = True
+        from_attributes = True
 
 class SOBase(BaseModel):
     nombre: str
@@ -65,6 +68,7 @@ class SO(SOBase):
 
     class Config:
         orm_mode = True
+        from_attributes = True
 
 class TipoPruebaBase(BaseModel):
     nombre: str
@@ -81,6 +85,7 @@ class TipoPrueba(TipoPruebaBase):
 
     class Config:
         orm_mode = True
+        from_attributes = True
 
 class TipoUsuarioBase(BaseModel):
     nombre: str
@@ -97,6 +102,7 @@ class TipoUsuario(TipoUsuarioBase):
 
     class Config:
         orm_mode = True
+        from_attributes = True
 
 class CasoPruebaBase(BaseModel):
     paso_a_paso: str
@@ -117,3 +123,4 @@ class CasoPrueba(CasoPruebaBase):
 
     class Config:
         orm_mode = True
+        from_attributes = True

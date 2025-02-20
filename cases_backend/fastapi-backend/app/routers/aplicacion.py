@@ -9,10 +9,10 @@ router = APIRouter()
 def create_aplicacion(aplicacion: schemas.AplicacionCreate, db: Session = Depends(get_db)):
     return crud.create_aplicacion(db=db, aplicacion=aplicacion)
 
-@router.get("/aplicacion/", response_model=list[schemas.Aplicacion])
-def read_aplicaciones(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    aplicaciones = crud.get_aplicaciones(db, skip=skip, limit=limit)
-    return aplicaciones
+@router.get("/aplicacion/", response_model=dict)
+def read_aplicaciones(skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc', db: Session = Depends(get_db)):
+    aplicaciones, total = crud.get_aplicaciones(db, skip=skip, limit=limit, sort_by=sort_by, sort_order=sort_order)
+    return {"data": [schemas.Aplicacion.model_validate(aplicacion) for aplicacion in aplicaciones], "total": total}
 
 @router.get("/aplicacion/{aplicacion_id}", response_model=schemas.Aplicacion)
 def read_aplicacion(aplicacion_id: int, db: Session = Depends(get_db)):

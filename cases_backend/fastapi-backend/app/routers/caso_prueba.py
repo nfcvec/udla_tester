@@ -9,10 +9,10 @@ router = APIRouter()
 def create_caso_prueba(caso_prueba: schemas.CasoPruebaCreate, db: Session = Depends(get_db)):
     return crud.create_caso_prueba(db=db, caso_prueba=caso_prueba)
 
-@router.get("/caso_prueba/", response_model=list[schemas.CasoPrueba])
-def read_casos_prueba(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    casos_prueba = crud.get_casos_prueba(db=db, skip=skip, limit=limit)
-    return casos_prueba
+@router.get("/caso_prueba/", response_model=dict)
+def read_casos_prueba(skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc', db: Session = Depends(get_db)):
+    casos_prueba, total = crud.get_casos_prueba(db, skip=skip, limit=limit, sort_by=sort_by, sort_order=sort_order)
+    return {"data": [schemas.CasoPrueba.model_validate(caso_prueba) for caso_prueba in casos_prueba], "total": total}
 
 @router.get("/caso_prueba/{caso_prueba_id}", response_model=schemas.CasoPrueba)
 def read_caso_prueba(caso_prueba_id: int, db: Session = Depends(get_db)):

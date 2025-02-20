@@ -1,3 +1,4 @@
+from sqlalchemy import asc, desc
 from sqlalchemy.orm import Session
 from . import models, schemas
 
@@ -11,8 +12,15 @@ def create_aplicacion(db: Session, aplicacion: schemas.AplicacionCreate):
 def get_aplicacion(db: Session, aplicacion_id: int):
     return db.query(models.Aplicacion).filter(models.Aplicacion.id == aplicacion_id).first()
 
-def get_aplicaciones(db: Session, skip: int = 0, limit: int = 10):
-    return db.query(models.Aplicacion).offset(skip).limit(limit).all()
+def get_aplicaciones(db: Session, skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc'):
+    query = db.query(models.Aplicacion)
+    if sort_order == 'desc':
+        query = query.order_by(desc(getattr(models.Aplicacion, sort_by)))
+    else:
+        query = query.order_by(asc(getattr(models.Aplicacion, sort_by)))
+    aplicaciones = query.offset(skip).limit(limit).all()
+    total = db.query(models.Aplicacion).count()
+    return aplicaciones, total
 
 def update_aplicacion(db: Session, aplicacion_id: int, aplicacion: schemas.AplicacionUpdate):
     db_aplicacion = db.query(models.Aplicacion).filter(models.Aplicacion.id == aplicacion_id).first()
@@ -37,8 +45,15 @@ def create_pantalla(db: Session, pantalla: schemas.PantallaCreate):
 def get_pantalla(db: Session, pantalla_id: int):
     return db.query(models.Pantalla).filter(models.Pantalla.id == pantalla_id).first()
 
-def get_pantallas(db: Session, skip: int = 0, limit: int = 10):
-    return db.query(models.Pantalla).offset(skip).limit(limit).all()
+def get_pantallas(db: Session, skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc'):
+    query = db.query(models.Pantalla)
+    if sort_order == 'desc':
+        query = query.order_by(desc(getattr(models.Pantalla, sort_by)))
+    else:
+        query = query.order_by(asc(getattr(models.Pantalla, sort_by)))
+    pantallas = query.offset(skip).limit(limit).all()
+    total = db.query(models.Pantalla).count()
+    return pantallas, total
 
 def update_pantalla(db: Session, pantalla_id: int, pantalla: schemas.PantallaUpdate):
     db_pantalla = db.query(models.Pantalla).filter(models.Pantalla.id == pantalla_id).first()
@@ -64,8 +79,15 @@ def create_funcionalidad(db: Session, funcionalidad: schemas.FuncionalidadCreate
 def get_funcionalidad(db: Session, funcionalidad_id: int):
     return db.query(models.Funcionalidad).filter(models.Funcionalidad.id == funcionalidad_id).first()
 
-def get_funcionalidades(db: Session, skip: int = 0, limit: int = 10):
-    return db.query(models.Funcionalidad).offset(skip).limit(limit).all()
+def get_funcionalidades(db: Session, skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc'):
+    query = db.query(models.Funcionalidad)
+    if sort_order == 'desc':
+        query = query.order_by(desc(getattr(models.Funcionalidad, sort_by)))
+    else:
+        query = query.order_by(asc(getattr(models.Funcionalidad, sort_by)))
+    funcionalidades = query.offset(skip).limit(limit).all()    
+    total = db.query(models.Funcionalidad).count()
+    return funcionalidades, total
 
 def update_funcionalidad(db: Session, funcionalidad_id: int, funcionalidad: schemas.FuncionalidadUpdate):
     db_funcionalidad = db.query(models.Funcionalidad).filter(models.Funcionalidad.id == funcionalidad_id).first()
@@ -91,8 +113,15 @@ def create_so(db: Session, so: schemas.SOCreate):
 def get_so(db: Session, so_id: int):
     return db.query(models.SO).filter(models.SO.id == so_id).first()
 
-def get_sos(db: Session, skip: int = 0, limit: int = 10):
-    return db.query(models.SO).offset(skip).limit(limit).all()
+def get_sos(db: Session, skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc'):
+    query = db.query(models.SO)
+    if sort_order == 'desc':
+        query = query.order_by(desc(getattr(models.SO, sort_by)))
+    else:
+        query = query.order_by(asc(getattr(models.SO, sort_by)))
+    sos = query.offset(skip).limit(limit).all()
+    total = db.query(models.SO).count()
+    return sos, total
 
 def update_so(db: Session, so_id: int, so: schemas.SOUpdate):
     db_so = db.query(models.SO).filter(models.SO.id == so_id).first()
@@ -118,8 +147,15 @@ def create_tipo_prueba(db: Session, tipo_prueba: schemas.TipoPruebaCreate):
 def get_tipo_prueba(db: Session, tipo_prueba_id: int):
     return db.query(models.TipoPrueba).filter(models.TipoPrueba.id == tipo_prueba_id).first()
 
-def get_tipos_prueba(db: Session, skip: int = 0, limit: int = 10):
-    return db.query(models.TipoPrueba).offset(skip).limit(limit).all()
+def get_tipos_prueba(db: Session, skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc'):
+    query = db.query(models.TipoPrueba)
+    if sort_order == 'desc':
+        query = query.order_by(desc(getattr(models.TipoPrueba, sort_by)))
+    else:
+        query = query.order_by(asc(getattr(models.TipoPrueba, sort_by)))
+    tipos_prueba = query.offset(skip).limit(limit).all()
+    total = db.query(models.TipoPrueba).count()
+    return tipos_prueba, total
 
 def update_tipo_prueba(db: Session, tipo_prueba_id: int, tipo_prueba: schemas.TipoPruebaUpdate):
     db_tipo_prueba = db.query(models.TipoPrueba).filter(models.TipoPrueba.id == tipo_prueba_id).first()
@@ -145,8 +181,15 @@ def create_tipo_usuario(db: Session, tipo_usuario: schemas.TipoUsuarioCreate):
 def get_tipo_usuario(db: Session, tipo_usuario_id: int):
     return db.query(models.TipoUsuario).filter(models.TipoUsuario.id == tipo_usuario_id).first()
 
-def get_tipos_usuario(db: Session, skip: int = 0, limit: int = 10):
-    return db.query(models.TipoUsuario).offset(skip).limit(limit).all()
+def get_tipos_usuario(db: Session, skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc'):
+    query = db.query(models.TipoUsuario)
+    if sort_order == 'desc':
+        query = query.order_by(desc(getattr(models.TipoUsuario, sort_by)))
+    else:
+        query = query.order_by(asc(getattr(models.TipoUsuario, sort_by)))
+    tipos_usuario = query.offset(skip).limit(limit).all()
+    total = db.query(models.TipoUsuario).count()
+    return tipos_usuario, total
 
 def update_tipo_usuario(db: Session, tipo_usuario_id: int, tipo_usuario: schemas.TipoUsuarioUpdate):
     db_tipo_usuario = db.query(models.TipoUsuario).filter(models.TipoUsuario.id == tipo_usuario_id).first()
@@ -172,8 +215,15 @@ def create_caso_prueba(db: Session, caso_prueba: schemas.CasoPruebaCreate):
 def get_caso_prueba(db: Session, caso_prueba_id: int):
     return db.query(models.CasoPrueba).filter(models.CasoPrueba.id == caso_prueba_id).first()
 
-def get_casos_prueba(db: Session, skip: int = 0, limit: int = 10):
-    return db.query(models.CasoPrueba).offset(skip).limit(limit).all()
+def get_casos_prueba(db: Session, skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc'):
+    query = db.query(models.CasoPrueba)
+    if sort_order == 'desc':
+        query = query.order_by(desc(getattr(models.CasoPrueba, sort_by)))
+    else:
+        query = query.order_by(asc(getattr(models.CasoPrueba, sort_by)))
+    casos_prueba = query.offset(skip).limit(limit).all()
+    total = db.query(models.CasoPrueba).count()
+    return casos_prueba, total
 
 def update_caso_prueba(db: Session, caso_prueba_id: int, caso_prueba: schemas.CasoPruebaUpdate):
     db_caso_prueba = db.query(models.CasoPrueba).filter(models.CasoPrueba.id == caso_prueba_id).first()
