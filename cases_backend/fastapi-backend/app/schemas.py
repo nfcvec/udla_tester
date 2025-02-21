@@ -1,7 +1,6 @@
 from pydantic import BaseModel
 from typing import List, Optional
-
-
+from typing import Dict
 
 class AplicacionBase(BaseModel):
     nombre: str
@@ -31,10 +30,18 @@ class PantallaUpdate(PantallaBase):
 
 class Pantalla(PantallaBase):
     id: int
+    aplicacion: Aplicacion
 
     class Config:
         orm_mode = True
         from_attributes = True
+    
+class PantallaFilterParams(BaseModel):
+    skip: int = 0
+    limit: int = 10
+    sort_by: str = 'id'
+    sort_order: str = 'asc'
+    filters: Optional[Dict[str, str]] = None 
 
 class FuncionalidadBase(BaseModel):
     nombre: str
@@ -48,6 +55,7 @@ class FuncionalidadUpdate(FuncionalidadBase):
 
 class Funcionalidad(FuncionalidadBase):
     id: int
+    aplicacion: Aplicacion
 
     class Config:
         orm_mode = True
@@ -65,6 +73,7 @@ class SOUpdate(SOBase):
 
 class SO(SOBase):
     id: int
+    aplicacion: Aplicacion
 
     class Config:
         orm_mode = True
@@ -82,6 +91,7 @@ class TipoPruebaUpdate(TipoPruebaBase):
 
 class TipoPrueba(TipoPruebaBase):
     id: int
+    aplicacion: Aplicacion
 
     class Config:
         orm_mode = True
@@ -99,6 +109,7 @@ class TipoUsuarioUpdate(TipoUsuarioBase):
 
 class TipoUsuario(TipoUsuarioBase):
     id: int
+    aplicacion: Aplicacion
 
     class Config:
         orm_mode = True
@@ -111,6 +122,7 @@ class CasoPruebaBase(BaseModel):
     tipo_prueba_id: int
     pantalla_id: int
     aplicacion_id: int
+    tipo_usuario_id: int
 
 class CasoPruebaCreate(CasoPruebaBase):
     pass
@@ -120,6 +132,12 @@ class CasoPruebaUpdate(CasoPruebaBase):
 
 class CasoPrueba(CasoPruebaBase):
     id: int
+    aplicacion: Aplicacion
+    funcionalidad: Funcionalidad
+    so: SO
+    tipo_prueba: TipoPrueba
+    pantalla: Pantalla
+    tipo_usuario: TipoUsuario
 
     class Config:
         orm_mode = True

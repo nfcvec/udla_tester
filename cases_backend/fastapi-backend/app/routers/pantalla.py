@@ -1,6 +1,8 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from .. import crud, models, schemas
+from typing import List, Dict, Optional
+from fastapi.params import Query
 from ..database import get_db
 
 router = APIRouter()
@@ -10,8 +12,15 @@ def create_pantalla(pantalla: schemas.PantallaCreate, db: Session = Depends(get_
     return crud.create_pantalla(db=db, pantalla=pantalla)
 
 @router.get("/pantalla/", response_model=dict)
-def read_pantallas(skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc', db: Session = Depends(get_db)):
-    pantallas, total = crud.get_pantallas(db, skip=skip, limit=limit, sort_by=sort_by, sort_order=sort_order)
+def read_pantallas(
+    skip: int = 0,
+    limit: int = 10,
+    sort_by: str = 'id',
+    sort_order: str = 'asc',
+    filters: Optional[Dict[str, str]] = Query(None),
+    db: Session = Depends(get_db)
+):
+    pantallas, total = crud.get_pantallas(db, skip=skip, limit=limit, sort_by=sort_by, sort_order=sort_order, filters=filters)
     return {"data": [schemas.Pantalla.model_validate(pantalla) for pantalla in pantallas], "total": total}
 
 @router.get("/pantalla/{pantalla_id}", response_model=schemas.Pantalla)

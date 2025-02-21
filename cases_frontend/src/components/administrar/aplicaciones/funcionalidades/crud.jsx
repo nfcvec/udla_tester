@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { DataGrid, GridActionsCellItem } from '@mui/x-data-grid';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Box, Container } from '@mui/material';
-import apiCases from '../../../services/apiCases';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Box, Container, FormControl, InputLabel, NativeSelect, Select, MenuItem, Typography } from '@mui/material';
+import apiCases from '../../../../services/apiCases';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-const CRUDAplicaciones = ({setAplicacion}) => {
+const CRUDFuncionalidades = ({aplicacion}) => {
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
   const [open, setOpen] = useState(false);
@@ -14,6 +14,8 @@ const CRUDAplicaciones = ({setAplicacion}) => {
 
   const [sortModel, setSortModel] = useState([]);
   const [filterModel, setFilterModel] = useState({});
+  const [aplicaciones, setAplicaciones] = useState([]);
+
 
   const handleSortModelChange = (newSortModel) => {
     setSortModel(newSortModel);
@@ -34,6 +36,11 @@ const CRUDAplicaciones = ({setAplicacion}) => {
       skip: paginationModel.page * paginationModel.pageSize,
     };
 
+    if(aplicacion?.nombre){
+      params.filter_column = 'aplicacion_id';
+      params.filter_value = aplicacion.id;
+    }
+
     if (sortModel.length > 0) {
       params.sort_by = sortModel[0].field;
       params.sort_order = sortModel[0].sort;
@@ -47,21 +54,31 @@ const CRUDAplicaciones = ({setAplicacion}) => {
       });
     }
 
-    const response = await apiCases.readAplicaciones(params);
+    const response = await apiCases.readFuncionalidades(params);
     setData(response.data.data);
     setTotal(response.data.total);
   };
+
+
 
   useEffect(() => {
     fetchData();
   }, [paginationModel, sortModel, filterModel]);
 
+
   const handleOpen = (row) => {
+    // get all aplicaciones
+    apiCases.readAplicaciones({
+      limit: -1,
+    }).then((response) => {
+      setAplicaciones(response.data.data);
+    });
+
     if (row) {
       setFormData(row);
       setIsEdit(true);
     } else {
-      setFormData({ id: '', nombre: '' });
+      setFormData({ id: '', nombre: '', aplicacion_id: aplicacion.id });
       setIsEdit(false);
     }
     setOpen(true);
@@ -76,22 +93,33 @@ const CRUDAplicaciones = ({setAplicacion}) => {
   };
 
   const handleSubmit = async () => {
+
+    const aplicacion = aplicaciones.find(app => app.id === formData.aplicacion_id);
+    const payload = {
+      ...formData,
+      aplicacion,
+    };
+
     if (isEdit) {
-      await apiCases.updateAplicacion(formData.id, formData);
+      await apiCases.updateFuncionalidad(formData.id, payload);
     } else {
-      await apiCases.createAplicacion(formData);
+      await apiCases.createFuncionalidad(payload);
     }
     fetchData();
     handleClose();
   };
 
   const handleDelete = async (id) => {
-    await apiCases.deleteAplicacion(id);
+    await apiCases.deleteFuncionalidad(id);
     fetchData();
   };
 
   const columns = [
     { field: 'id', headerName: 'ID', width: 90 },
+    {
+      field: 'aplicacion', headerName: 'Aplicacion', width: 150,
+      valueGetter: (params) => params.nombre,
+    },
     { field: 'nombre', headerName: 'Nombre', width: 150 },
     {
       field: 'actions',
@@ -121,6 +149,7 @@ const CRUDAplicaciones = ({setAplicacion}) => {
         flexDirection: 'column',
         gap: 2,
       }}>
+        <Typography variant="h4">Funcionalidades de {aplicacion.nombre}</Typography>
         <Box
           textAlign="right">
           <Button variant="contained" color="primary" onClick={() => handleOpen(null)}>Add New</Button>
@@ -138,12 +167,24 @@ const CRUDAplicaciones = ({setAplicacion}) => {
           onSortModelChange={handleSortModelChange}
           filterMode="server"
           onFilterModelChange={handleFilterModelChange}
-          checkboxSelection={false}
-          onRowClick={(row) => setAplicacion(row.row)}
+          checkboxSelection
         />
         <Dialog open={open} onClose={handleClose}>
-          <DialogTitle>{isEdit ? 'Edit Aplicacion' : 'Add New Aplicacion'}</DialogTitle>
+          <DialogTitle>{isEdit ? 'Edit Funcionalidad' : 'Add New Funcionalidad'}</DialogTitle>
           <DialogContent>
+            <Select
+              autoFocus
+              margin="dense"
+              name="aplicacion_id"
+              label="Aplicacion"
+              fullWidth
+              value={formData.aplicacion_id}
+              onChange={handleChange}
+            >
+              {aplicaciones.map((aplicacion) => (
+                <MenuItem key={aplicacion.id} value={aplicacion.id}>{aplicacion.nombre}</MenuItem>
+              ))}
+            </Select>
             <TextField
               autoFocus
               margin="dense"
@@ -165,4 +206,4 @@ const CRUDAplicaciones = ({setAplicacion}) => {
   );
 };
 
-export default CRUDAplicaciones;
+export default CRUDFuncionalidades;

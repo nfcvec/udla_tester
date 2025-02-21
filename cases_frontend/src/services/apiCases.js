@@ -28,13 +28,13 @@ const apiCases = {
   deleteSo: (id) => axios.delete(`${API_BASE_URL}/so/${id}`),
 
   createTipoPrueba: (data) => axios.post(`${API_BASE_URL}/tipo_prueba/`, data),
-  readTipoPruebas: (params) => axios.get(`${API_BASE_URL}/tipo_prueba/`, { params }),
+  readTiposPrueba: (params) => axios.get(`${API_BASE_URL}/tipo_prueba/`, { params }),
   readTipoPrueba: (id) => axios.get(`${API_BASE_URL}/tipo_prueba/${id}`),
   updateTipoPrueba: (id, data) => axios.put(`${API_BASE_URL}/tipo_prueba/${id}`, data),
   deleteTipoPrueba: (id) => axios.delete(`${API_BASE_URL}/tipo_prueba/${id}`),
 
   createTipoUsuario: (data) => axios.post(`${API_BASE_URL}/tipo_usuario/`, data),
-  readTipoUsuarios: (params) => axios.get(`${API_BASE_URL}/tipo_usuario/`, { params }),
+  readTiposUsuario: (params) => axios.get(`${API_BASE_URL}/tipo_usuario/`, { params }),
   readTipoUsuario: (id) => axios.get(`${API_BASE_URL}/tipo_usuario/${id}`),
   updateTipoUsuario: (id, data) => axios.put(`${API_BASE_URL}/tipo_usuario/${id}`, data),
   deleteTipoUsuario: (id) => axios.delete(`${API_BASE_URL}/tipo_usuario/${id}`),

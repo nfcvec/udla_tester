@@ -10,8 +10,8 @@ def create_aplicacion(aplicacion: schemas.AplicacionCreate, db: Session = Depend
     return crud.create_aplicacion(db=db, aplicacion=aplicacion)
 
 @router.get("/aplicacion/", response_model=dict)
-def read_aplicaciones(skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc', db: Session = Depends(get_db)):
-    aplicaciones, total = crud.get_aplicaciones(db, skip=skip, limit=limit, sort_by=sort_by, sort_order=sort_order)
+def read_aplicaciones(skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc', filter_column: str = None, filter_value: str = None, db: Session = Depends(get_db)):
+    aplicaciones, total = crud.get_aplicaciones(db, skip=skip, limit=limit, sort_by=sort_by, sort_order=sort_order, filter_column=filter_column, filter_value=filter_value)
     return {"data": [schemas.Aplicacion.model_validate(aplicacion) for aplicacion in aplicaciones], "total": total}
 
 @router.get("/aplicacion/{aplicacion_id}", response_model=schemas.Aplicacion)

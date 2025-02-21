@@ -10,8 +10,8 @@ def create_caso_prueba(caso_prueba: schemas.CasoPruebaCreate, db: Session = Depe
     return crud.create_caso_prueba(db=db, caso_prueba=caso_prueba)
 
 @router.get("/caso_prueba/", response_model=dict)
-def read_casos_prueba(skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc', db: Session = Depends(get_db)):
-    casos_prueba, total = crud.get_casos_prueba(db, skip=skip, limit=limit, sort_by=sort_by, sort_order=sort_order)
+def read_casos_prueba(skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc', filter_column: str = None, filter_value: str = None,db: Session = Depends(get_db)):
+    casos_prueba, total = crud.get_casos_prueba(db, skip=skip, limit=limit, sort_by=sort_by, sort_order=sort_order, filter_column=filter_column, filter_value=filter_value)
     return {"data": [schemas.CasoPrueba.model_validate(caso_prueba) for caso_prueba in casos_prueba], "total": total}
 
 @router.get("/caso_prueba/{caso_prueba_id}", response_model=schemas.CasoPrueba)

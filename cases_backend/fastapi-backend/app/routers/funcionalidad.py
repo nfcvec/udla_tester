@@ -10,8 +10,8 @@ def create_funcionalidad(funcionalidad: schemas.FuncionalidadCreate, db: Session
     return crud.create_funcionalidad(db=db, funcionalidad=funcionalidad)
 
 @router.get("/funcionalidad/", response_model=dict)
-def read_funcionalidades(skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc', db: Session = Depends(get_db)):
-    funcionalidades, total = crud.get_funcionalidades(db, skip=skip, limit=limit, sort_by=sort_by, sort_order=sort_order)
+def read_funcionalidades(skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc', filter_column: str = None, filter_value: str = None, db: Session = Depends(get_db)):
+    funcionalidades, total = crud.get_funcionalidades(db, skip=skip, limit=limit, sort_by=sort_by, sort_order=sort_order, filter_column=filter_column, filter_value=filter_value)
     return {"data": [schemas.Funcionalidad.model_validate(funcionalidad) for funcionalidad in funcionalidades], "total": total}
 
 @router.get("/funcionalidad/{funcionalidad_id}", response_model=schemas.Funcionalidad)

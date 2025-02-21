@@ -10,8 +10,8 @@ def create_tipo_usuario(tipo_usuario: schemas.TipoUsuarioCreate, db: Session = D
     return crud.create_tipo_usuario(db=db, tipo_usuario=tipo_usuario)
 
 @router.get("/tipo_usuario/", response_model=dict)
-def read_tipo_usuarios(skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc', db: Session = Depends(get_db)):
-    tipo_usuarios, total = crud.get_tipo_usuarios(db, skip=skip, limit=limit, sort_by=sort_by, sort_order=sort_order)
+def read_tipos_usuario(skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc', filter_column: str = None, filter_value: str = None, db: Session = Depends(get_db)):
+    tipo_usuarios, total = crud.get_tipos_usuario(db, skip=skip, limit=limit, sort_by=sort_by, sort_order=sort_order, filter_column=filter_column, filter_value=filter_value)
     return {"data": [schemas.TipoUsuario.model_validate(tipo_usuario) for tipo_usuario in tipo_usuarios], "total": total}
 
 @router.get("/tipo_usuario/{tipo_usuario_id}", response_model=schemas.TipoUsuario)
