@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000/aplicacion/';
+const API_URL = 'https://localhost:8000/aplicacion/';
 
 export const fetchAplicaciones = async (skip = 0, limit = 10) => {
     const response = await axios.get(API_URL, { params: { skip, limit } });

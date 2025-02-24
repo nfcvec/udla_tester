@@ -1,193 +1,244 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { DataGrid, GridActionsCellItem } from '@mui/x-data-grid';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Box, Container, Select, MenuItem } from '@mui/material';
-import apiCases from '../../../../services/apiCases';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+import React, { useState, useEffect, useCallback } from "react";
+import { DataGrid, GridActionsCellItem } from "@mui/x-data-grid";
+import {
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    TextField,
+    Box,
+    Container,
+    Select,
+    MenuItem,
+} from "@mui/material";
+import apiCases from "../../../../services/apiCases";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { useAlert } from '../../../../contexts/AlertContext';
 
-const CRUDTiposUsuario = () => {
-  const [data, setData] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [open, setOpen] = useState(false);
-  const [formData, setFormData] = useState({ id: '', nombre: '', aplicacion_id: '' });
-  const [isEdit, setIsEdit] = useState(false);
+const CRUDTiposUsuario = ({ aplicacion }) => {
+    const [data, setData] = useState([]);
+    const [total, setTotal] = useState(0);
+    const [open, setOpen] = useState(false);
+    const [formData, setFormData] = useState({
+        id: "",
+        nombre: "",
+        aplicacion_id: "",
+    });
+    const [isEdit, setIsEdit] = useState(false);
 
-  const [sortModel, setSortModel] = useState([]);
-  const [filterModel, setFilterModel] = useState({});
-  const [aplicaciones, setAplicaciones] = useState([]);
+    const [sortModel, setSortModel] = useState([]);
+    const [filterModel, setFilterModel] = useState({});
+    const [aplicaciones, setAplicaciones] = useState([]);
 
-  const handleSortModelChange = (newSortModel) => {
-    setSortModel(newSortModel);
-  };
+    const showAlert = useAlert();
 
-  const handleFilterModelChange = useCallback((newFilterModel) => {
-    setFilterModel(newFilterModel);
-  }, []);
-
-  const [paginationModel, setPaginationModel] = useState({
-    pageSize: 5,
-    page: 0,
-  });
-
-  const fetchData = async () => {
-    const params = {
-      limit: paginationModel.pageSize,
-      skip: paginationModel.page * paginationModel.pageSize,
+    const handleSortModelChange = (newSortModel) => {
+        setSortModel(newSortModel);
     };
 
-    if (sortModel.length > 0) {
-      params.sort_by = sortModel[0].field;
-      params.sort_order = sortModel[0].sort;
-    }
+    const handleFilterModelChange = useCallback((newFilterModel) => {
+        setFilterModel(newFilterModel);
+    }, []);
 
-    if (filterModel.items && filterModel.items.length > 0) {
-      filterModel.items.forEach((filter) => {
-        params.filter_column = filter.field;
-        params.filter_value = filter.value;
-      });
-    }
-
-    const response = await apiCases.readTiposUsuario(params);
-    setData(response.data.data);
-    setTotal(response.data.total);
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, [paginationModel, sortModel, filterModel]);
-
-  const handleOpen = (row) => {
-    apiCases.readAplicaciones({
-      limit: -1,
-    }).then((response) => {
-      setAplicaciones(response.data.data);
+    const [paginationModel, setPaginationModel] = useState({
+        pageSize: 5,
+        page: 0,
     });
 
-    if (row) {
-      setFormData(row);
-      setIsEdit(true);
-    } else {
-      setFormData({ id: '', nombre: '', aplicacion_id: '' });
-      setIsEdit(false);
-    }
-    setOpen(true);
-  };
+    const fetchData = async () => {
+        const params = {
+            limit: paginationModel.pageSize,
+            skip: paginationModel.page * paginationModel.pageSize,
+        };
 
-  const handleClose = () => {
-    setOpen(false);
-  };
+        if (sortModel.length > 0) {
+            params.sort_by = sortModel[0].field;
+            params.sort_order = sortModel[0].sort;
+        }
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+        if (filterModel.items && filterModel.items.length > 0) {
+            filterModel.items.forEach((filter) => {
+                params.filter_column = filter.field;
+                params.filter_value = filter.value;
+            });
+        }
 
-  const handleSubmit = async () => {
-    const aplicacion = aplicaciones.find(app => app.id === formData.aplicacion_id);
-    const payload = {
-      ...formData,
-      aplicacion,
+        try {
+            const response = await apiCases.readTiposUsuario(params);
+            setData(response.data.data);
+            setTotal(response.data.total);
+        } catch (error) {
+            showAlert("Error al obtener los datos", "error");
+        }
     };
 
-    if (isEdit) {
-      await apiCases.updateTipoUsuario(formData.id, payload);
-    } else {
-      await apiCases.createTipoUsuario(payload);
-    }
-    fetchData();
-    handleClose();
-  };
+    useEffect(() => {
+        fetchData();
+    }, [paginationModel, sortModel, filterModel]);
 
-  const handleDelete = async (id) => {
-    await apiCases.deleteTipoUsuario(id);
-    fetchData();
-  };
+    const handleOpen = (row) => {
+        apiCases
+            .readAplicaciones({
+                limit: -1,
+            })
+            .then((response) => {
+                setAplicaciones(response.data.data);
+            });
 
-  const columns = [
-    { field: 'id', headerName: 'ID', width: 90 },
-    { field: 'aplicacion', headerName: 'Aplicacion', width: 150, valueGetter: (params) => params.nombre },
-    { field: 'nombre', headerName: 'Nombre', width: 150 },
-    {
-      field: 'actions',
-      type: 'actions',
-      headerName: 'Actions',
-      width: 100,
-      cellClassName: 'actions',
-      getActions: (params) => [
-        <GridActionsCellItem
-          icon={<EditIcon />}
-          label="Edit"
-          onClick={() => handleOpen(params.row)}
-        />,
-        <GridActionsCellItem
-          icon={<DeleteIcon />}
-          label="Delete"
-          onClick={() => handleDelete(params.row.id)}
-        />,
-      ],
-    },
-  ];
+        if (row) {
+            setFormData(row);
+            setIsEdit(true);
+        } else {
+            setFormData({ id: "", nombre: "", aplicacion_id: aplicacion.id });
+            setIsEdit(false);
+        }
+        setOpen(true);
+    };
 
-  return (
-    <Container>
-      <Box sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 2,
-      }}>
+    const handleClose = () => {
+        setOpen(false);
+    };
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleSubmit = async () => {
+        try {
+            const aplicacion = aplicaciones.find(
+                (app) => app.id === formData.aplicacion_id
+            );
+            const payload = {
+                ...formData,
+                aplicacion,
+            };
+
+            if (isEdit) {
+                await apiCases.updateTipoUsuario(formData.id, payload);
+                showAlert("Tipo de usuario actualizado", "success");
+            } else {
+                await apiCases.createTipoUsuario(payload);
+                showAlert("Tipo de usuario creado", "success");
+            }
+            fetchData();
+            handleClose();
+        } catch (error) {
+            showAlert("Error al guardar el tipo de usuario", "error");
+        }
+    };
+
+    const handleDelete = async (id) => {
+        try {
+            await apiCases.deleteTipoUsuario(id);
+            showAlert("Tipo de usuario eliminado", "success");
+            fetchData();
+        } catch (error) {
+            showAlert("Error al eliminar el tipo de usuario", "error");
+        }
+    };
+
+    const columns = [
+        { field: "id", headerName: "ID", width: 90 },
+        { field: "nombre", headerName: "Nombre", width: 150 },
+        {
+            field: "actions",
+            type: "actions",
+            headerName: "Actions",
+            width: 100,
+            cellClassName: "actions",
+            getActions: (params) => [
+                <GridActionsCellItem
+                    icon={<EditIcon />}
+                    label="Edit"
+                    onClick={() => handleOpen(params.row)}
+                />,
+                <GridActionsCellItem
+                    icon={<DeleteIcon />}
+                    label="Delete"
+                    onClick={() => handleDelete(params.row.id)}
+                />,
+            ],
+        },
+    ];
+
+    return (
         <Box
-          textAlign="right">
-          <Button variant="contained" color="primary" onClick={() => handleOpen(null)}>Add New</Button>
-        </Box>
-        <DataGrid
-          rows={data}
-          columns={columns}
-          pageSizeOptions={[5]}
-          paginationModel={paginationModel}
-          onPaginationModelChange={setPaginationModel}
-          rowCount={total}
-          paginationMode="server"
-          sortingMode="server"
-          sortModel={sortModel}
-          onSortModelChange={handleSortModelChange}
-          filterMode="server"
-          onFilterModelChange={handleFilterModelChange}
-          checkboxSelection
-        />
-        <Dialog open={open} onClose={handleClose}>
-          <DialogTitle>{isEdit ? 'Edit Tipo de Usuario' : 'Add New Tipo de Usuario'}</DialogTitle>
-          <DialogContent>
-            <Select
-              autoFocus
-              margin="dense"
-              name="aplicacion_id"
-              label="Aplicacion"
-              fullWidth
-              value={formData.aplicacion_id}
-              onChange={handleChange}
-            >
-              {aplicaciones.map((aplicacion) => (
-                <MenuItem key={aplicacion.id} value={aplicacion.id}>{aplicacion.nombre}</MenuItem>
-              ))}
-            </Select>
-            <TextField
-              autoFocus
-              margin="dense"
-              name="nombre"
-              label="Nombre"
-              type="text"
-              fullWidth
-              value={formData.nombre}
-              onChange={handleChange}
+            sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 2,
+            }}
+        >
+            <Box textAlign="right">
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => handleOpen(null)}
+                >
+                    Añadir
+                </Button>
+            </Box>
+            <DataGrid
+                rows={data}
+                columns={columns}
+                pageSizeOptions={[5]}
+                paginationModel={paginationModel}
+                onPaginationModelChange={setPaginationModel}
+                rowCount={total}
+                paginationMode="server"
+                sortingMode="server"
+                sortModel={sortModel}
+                onSortModelChange={handleSortModelChange}
+                filterMode="server"
+                onFilterModelChange={handleFilterModelChange}
+                checkboxSelection={false}
             />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose} color="primary">Cancel</Button>
-            <Button onClick={handleSubmit} color="primary">{isEdit ? 'Update' : 'Add'}</Button>
-          </DialogActions>
-        </Dialog>
-      </Box>
-    </Container>
-  );
+            <Dialog open={open} onClose={handleClose}>
+                <DialogTitle>
+                    {isEdit
+                        ? "Edit Tipo de Usuario"
+                        : "Add New Tipo de Usuario"}
+                </DialogTitle>
+                <DialogContent>
+                    <Select
+                        autoFocus
+                        margin="dense"
+                        name="aplicacion_id"
+                        label="Aplicacion"
+                        fullWidth
+                        value={formData.aplicacion_id}
+                        onChange={handleChange}
+                    >
+                        {aplicaciones.map((aplicacion) => (
+                            <MenuItem key={aplicacion.id} value={aplicacion.id}>
+                                {aplicacion.nombre}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        name="nombre"
+                        label="Nombre"
+                        type="text"
+                        fullWidth
+                        value={formData.nombre}
+                        onChange={handleChange}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose} color="primary">
+                        Cancelar
+                    </Button>
+                    <Button onClick={handleSubmit} color="primary">
+                        {isEdit ? "Guardar" : "Agregar"}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </Box>
+    );
 };
 
 export default CRUDTiposUsuario;

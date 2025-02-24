@@ -4,6 +4,7 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, B
 import apiCases from '../../../../services/apiCases';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useAlert } from '../../../../contexts/AlertContext';
 
 const CRUDPantallas = ({aplicacion}) => {
   const [data, setData] = useState([]);
@@ -16,6 +17,7 @@ const CRUDPantallas = ({aplicacion}) => {
   const [filterModel, setFilterModel] = useState({});
   const [aplicaciones, setAplicaciones] = useState([]);
 
+  const showAlert = useAlert();
 
   const handleSortModelChange = (newSortModel) => {
     setSortModel(newSortModel);
@@ -42,21 +44,27 @@ const CRUDPantallas = ({aplicacion}) => {
     }
   
     // Always filter by aplicacion.id if present
+    let filters = [];
     if (aplicacion && aplicacion.id) {
-      params.filters = { aplicacion_id: aplicacion.id };
-    } else {
-      params.filters = {};
+      filters.push({ field: 'aplicacion_id', operator: 'equals', value: aplicacion.id });
     }
   
     if (filterModel.items && filterModel.items.length > 0) {
-      filterModel.items.forEach((filter) => {
-        params.filters[filter.field] = filter.value;
-      });
+      filters = filters.concat(filterModel.items);
+    }
+
+    console.log('filters', filters);
+    if (filters.length > 0) {
+      params.filters = JSON.stringify(filters);
     }
   
-    const response = await apiCases.readPantallas(params);
-    setData(response.data.data);
-    setTotal(response.data.total);
+    try {
+      const response = await apiCases.readPantallas(params);
+      setData(response.data.data);
+      setTotal(response.data.total);
+    } catch (error) {
+      showAlert("Error al obtener los datos", "error");
+    }
   };
 
   useEffect(() => {
@@ -97,23 +105,33 @@ const CRUDPantallas = ({aplicacion}) => {
       aplicacion,
     };
 
-    if (isEdit) {
-      await apiCases.updatePantalla(formData.id, payload);
-    } else {
-      await apiCases.createPantalla(payload);
+    try {
+      if (isEdit) {
+        await apiCases.updatePantalla(formData.id, payload);
+        showAlert("Pantalla actualizada", "success");
+      } else {
+        await apiCases.createPantalla(payload);
+        showAlert("Pantalla creada", "success");
+      }
+      fetchData();
+      handleClose();
+    } catch (error) {
+      showAlert("Error al guardar la pantalla", "error");
     }
-    fetchData();
-    handleClose();
   };
 
   const handleDelete = async (id) => {
-    await apiCases.deletePantalla(id);
-    fetchData();
+    try {
+      await apiCases.deletePantalla(id);
+      showAlert("Pantalla eliminada", "success");
+      fetchData();
+    } catch (error) {
+      showAlert("Error al eliminar la pantalla", "error");
+    }
   };
 
   const columns = [
     { field: 'id', headerName: 'ID', width: 90 },
-    { field: 'aplicacion', headerName: 'Aplicacion', width: 150, valueGetter: (params) => params.nombre,},
     { field: 'nombre', headerName: 'Nombre', width: 150 },
     {
       field: 'actions',
@@ -137,16 +155,14 @@ const CRUDPantallas = ({aplicacion}) => {
   ];
 
   return (
-    <Container>
       <Box sx={{
         display: 'flex',
         flexDirection: 'column',
         gap: 2,
       }}>
-        <Typography variant="h4">Pantallas de {aplicacion.nombre}</Typography>
         <Box
           textAlign="right">
-          <Button variant="contained" color="primary" onClick={() => handleOpen(null)}>Add New</Button>
+          <Button variant="contained" color="primary" onClick={() => handleOpen(null)}>Añadir</Button>
         </Box>
         <DataGrid
           rows={data}
@@ -161,7 +177,7 @@ const CRUDPantallas = ({aplicacion}) => {
           onSortModelChange={handleSortModelChange}
           filterMode="server"
           onFilterModelChange={handleFilterModelChange}
-          checkboxSelection
+          checkboxSelection={false}
         />
         <Dialog open={open} onClose={handleClose}>
           <DialogTitle>{isEdit ? 'Edit Pantalla' : 'Add New Pantalla'}</DialogTitle>
@@ -191,12 +207,13 @@ const CRUDPantallas = ({aplicacion}) => {
             />
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleClose} color="primary">Cancel</Button>
-            <Button onClick={handleSubmit} color="primary">{isEdit ? 'Update' : 'Add'}</Button>
+            <Button onClick={handleClose} color="primary">Cancelar</Button>
+            <Button onClick={handleSubmit} color="primary">
+              {isEdit ? "Guardar" : "Agregar"}
+            </Button>
           </DialogActions>
         </Dialog>
       </Box>
-    </Container>
   );
 };
 

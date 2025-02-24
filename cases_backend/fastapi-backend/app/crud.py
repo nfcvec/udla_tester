@@ -1,7 +1,111 @@
+import json
 from sqlalchemy import asc, desc
 from sqlalchemy.orm import Session
 from . import models, schemas
 from sqlalchemy.orm import joinedload
+
+
+def apply_filters(query, model, filters):
+    if filters:
+        for filter in filters:
+            #validar que vengan todos los campos
+            if 'field' not in filter.keys() or 'operator' not in filter.keys() or 'value' not in filter.keys():
+                continue
+            field = filter['field']
+            
+            if field == 'aplicacion':
+                model = models.Aplicacion
+                field = 'nombre'
+                query = query.join(models.Aplicacion)
+                
+            elif field == 'pantalla':
+                model = models.Pantalla
+                field = 'nombre'
+                query = query.join(models.Pantalla)
+                
+            elif field == 'funcionalidad':
+                model = models.Funcionalidad
+                field = 'nombre'
+                query = query.join(models.Funcionalidad)
+                
+            elif field == 'so':
+                model = models.SO
+                field = 'nombre'
+                query = query.join(models.SO)
+                
+            elif field == 'tipo_prueba':
+                model = models.TipoPrueba
+                field = 'nombre'
+                query = query.join(models.TipoPrueba)
+                
+            elif field == 'tipo_usuario':
+                model = models.TipoUsuario
+                field = 'nombre'
+                query = query.join(models.TipoUsuario)
+                
+            operator = filter['operator']
+            value = filter.get('value', '')
+            if operator == 'equals':
+                query = query.filter(getattr(model, field) == value)
+            elif operator == 'doesNotEqual':
+                query = query.filter(getattr(model, field) != value)
+            elif operator == 'contains':
+                query = query.filter(getattr(model, field).like(f'%{value}%'))
+            elif operator == 'doesNotContain':
+                query = query.filter(~getattr(model, field).like(f'%{value}%'))
+            elif operator == 'startsWith':
+                query = query.filter(getattr(model, field).like(f'{value}%'))
+            elif operator == 'endsWith':
+                query = query.filter(getattr(model, field).like(f'%{value}'))
+            elif operator == 'isEmpty':
+                query = query.filter(getattr(model, field) == '')
+            elif operator == 'isNotEmpty':
+                query = query.filter(getattr(model, field) != '')
+            elif operator == 'isAnyOf':
+                query = query.filter(getattr(model, field).in_(value))
+    
+    return query
+
+def apply_sort(query, model, sorts: list):
+    # [{"field":"funcionalidad","sort":"asc"}]
+    if sorts:
+        for sort in sorts:
+            if 'field' not in sort.keys() or 'sort' not in sort.keys():
+                continue
+            field = sort['field']
+            sort_order = sort['sort']
+            if field == 'aplicacion':
+                model = models.Aplicacion
+                field = 'nombre'
+            elif field == 'pantalla':
+                model = models.Pantalla
+                field = 'nombre'
+            elif field == 'funcionalidad':
+                model = models.Funcionalidad
+                field = 'nombre'
+            elif field == 'so':
+                model = models.SO
+                field = 'nombre'
+            elif field == 'tipo_prueba':
+                model = models.TipoPrueba
+                field = 'nombre'
+            elif field == 'tipo_usuario':
+                model = models.TipoUsuario
+                field = 'nombre'
+            if sort_order == 'desc':
+                query = query.order_by(desc(getattr(model, field)))
+            else:
+                query = query.order_by(asc(getattr(model, field)))
+    return query
+
+def apply_pagination(query, pagination: dict):
+    #{"pageSize":5,"page":0}
+    if pagination:
+        page = pagination.get('page', 0)
+        page_size = pagination.get('pageSize', 10)
+        query = query.offset(page * page_size).limit(page_size)
+    return query
+    
 
 def create_aplicacion(db: Session, aplicacion: schemas.AplicacionCreate):
     db_aplicacion = models.Aplicacion(**aplicacion.dict())
@@ -13,15 +117,12 @@ def create_aplicacion(db: Session, aplicacion: schemas.AplicacionCreate):
 def get_aplicacion(db: Session, aplicacion_id: int):
     return db.query(models.Aplicacion).filter(models.Aplicacion.id == aplicacion_id).first()
 
-def get_aplicaciones(db: Session, skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc', filter_column: str = None, filter_value: str = None):
+def get_aplicaciones(db: Session, sorts: list = [], pagination: dict = {}, filters: list = []):
     query = db.query(models.Aplicacion)
-    if filter_column and filter_value:
-        query = query.filter(getattr(models.Aplicacion, filter_column).like(f'%{filter_value}%'))
-    if sort_order == 'desc':
-        query = query.order_by(desc(getattr(models.Aplicacion, sort_by)))
-    else:
-        query = query.order_by(asc(getattr(models.Aplicacion, sort_by)))
-    aplicaciones = query.offset(skip).limit(limit).all()
+    query = apply_filters(query, models.Aplicacion, filters)
+    query = apply_sort(query, models.Aplicacion, sorts)
+    query = apply_pagination(query, pagination)
+    aplicaciones = query.all()
     total = db.query(models.Aplicacion).count()
     return aplicaciones, total
 
@@ -34,6 +135,18 @@ def update_aplicacion(db: Session, aplicacion_id: int, aplicacion: schemas.Aplic
 
 def delete_aplicacion(db: Session, aplicacion_id: int):
     db_aplicacion = db.query(models.Aplicacion).filter(models.Aplicacion.id == aplicacion_id).first()
+    related_models = [
+        (models.Pantalla, "Pantalla"),
+        (models.Funcionalidad, "Funcionalidad"),
+        (models.SO, "SO"),
+        (models.TipoPrueba, "TipoPrueba"),
+        (models.TipoUsuario, "TipoUsuario"),
+        (models.CasoPrueba, "CasoPrueba")
+    ]
+    
+    for model, name in related_models:
+        if db.query(model).filter(getattr(model, 'aplicacion_id') == aplicacion_id).count() > 0:
+            raise Exception(f"No se puede eliminar la aplicación porque está referenciada en {name}")
     db.delete(db_aplicacion)
     db.commit()
     return db_aplicacion
@@ -48,17 +161,15 @@ def create_pantalla(db: Session, pantalla: schemas.PantallaCreate):
 def get_pantalla(db: Session, pantalla_id: int):
     return db.query(models.Pantalla).filter(models.Pantalla.id == pantalla_id).first()
 
-def get_pantallas(db: Session, skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc', filters: dict = {}):
+def get_pantallas(db: Session, skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc', filters: list = []):
     query = db.query(models.Pantalla).join(models.Aplicacion)
-    if filters:
-        for key, value in filters.items():
-            query = query.filter(getattr(models.Pantalla, key).like(f'%{value}%'))
+    query = apply_filters(query, models.Pantalla, filters)            
     if sort_order == 'desc':
         query = query.order_by(desc(getattr(models.Pantalla, sort_by)))
     else:
         query = query.order_by(asc(getattr(models.Pantalla, sort_by)))
     pantallas = query.offset(skip).limit(limit).all()
-    total = db.query(models.Pantalla).count()
+    total = query.count()
     return pantallas, total
 
 def update_pantalla(db: Session, pantalla_id: int, pantalla: schemas.PantallaUpdate):
@@ -73,6 +184,12 @@ def delete_pantalla(db: Session, pantalla_id: int):
     db_pantalla = db.query(models.Pantalla).options(
         joinedload(models.Pantalla.aplicacion)
     ).filter(models.Pantalla.id == pantalla_id).first()
+    related_models = [
+        (models.CasoPrueba, "CasoPrueba")
+    ]
+    for model, name in related_models:
+        if db.query(model).filter(getattr(model, 'pantalla_id') == pantalla_id).count() > 0:
+            raise Exception(f"No se puede eliminar la pantalla porque está referenciada en {name}")
     if db_pantalla:
         db.delete(db_pantalla)
         db.commit()
@@ -94,12 +211,11 @@ def get_funcionalidad(db: Session, funcionalidad_id: int):
         joinedload(models.Funcionalidad.aplicacion)
     ).filter(models.Funcionalidad.id == funcionalidad_id).first()
 
-def get_funcionalidades(db: Session, skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc', filter_column: str = None, filter_value: str = None):
+def get_funcionalidades(db: Session, skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc', filters: list = []):
     query = db.query(models.Funcionalidad).options(
         joinedload(models.Funcionalidad.aplicacion)
     )
-    if filter_column and filter_value:
-        query = query.filter(getattr(models.Funcionalidad, filter_column).like(f'%{filter_value}%'))
+    query = apply_filters(query, models.Funcionalidad, filters)
     if sort_order == 'desc':
         query = query.order_by(desc(getattr(models.Funcionalidad, sort_by)))
     else:
@@ -120,6 +236,8 @@ def delete_funcionalidad(db: Session, funcionalidad_id: int):
     db_funcionalidad = db.query(models.Funcionalidad).options(
         joinedload(models.Funcionalidad.aplicacion)
     ).filter(models.Funcionalidad.id == funcionalidad_id).first()
+    if db.query(models.CasoPrueba).filter(models.CasoPrueba.funcionalidad_id == funcionalidad_id).count() > 0:
+        raise Exception("No se puede eliminar la funcionalidad porque está referenciada en CasoPrueba")
     if db_funcionalidad:
         db.delete(db_funcionalidad)
         db.commit()
@@ -137,12 +255,11 @@ def get_so(db: Session, so_id: int):
         joinedload(models.SO.aplicacion)
     ).filter(models.SO.id == so_id).first()
 
-def get_sos(db: Session, skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc', filter_column: str = None, filter_value: str = None):
+def get_sos(db: Session, skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc', filters: list = []):
     query = db.query(models.SO).options(
         joinedload(models.SO.aplicacion)
     )
-    if filter_column and filter_value:
-        query = query.filter(getattr(models.SO, filter_column).like(f'%{filter_value}%'))
+    query = apply_filters(query, models.SO, filters)
     if sort_order == 'desc':
         query = query.order_by(desc(getattr(models.SO, sort_by)))
     else:
@@ -163,6 +280,8 @@ def delete_so(db: Session, so_id: int):
     db_so = db.query(models.SO).options(
         joinedload(models.SO.aplicacion)
     ).filter(models.SO.id == so_id).first()
+    if db.query(models.CasoPrueba).filter(models.CasoPrueba.so_id == so_id).count() > 0:
+        raise Exception("No se puede eliminar el SO porque está referenciado en CasoPrueba")
     if db_so:
         db.delete(db_so)
         db.commit()
@@ -180,12 +299,11 @@ def get_tipo_prueba(db: Session, tipo_prueba_id: int):
         joinedload(models.TipoPrueba.aplicacion)
     ).filter(models.TipoPrueba.id == tipo_prueba_id).first()
 
-def get_tipos_prueba(db: Session, skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc', filter_column: str = None, filter_value: str = None):
+def get_tipos_prueba(db: Session, skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc', filters: list = []):
     query = db.query(models.TipoPrueba).options(
         joinedload(models.TipoPrueba.aplicacion)
     )
-    if filter_column and filter_value:
-        query = query.filter(getattr(models.TipoPrueba, filter_column).like(f'%{filter_value}%'))
+    query = apply_filters(query, models.TipoPrueba, filters)
     if sort_order == 'desc':
         query = query.order_by(desc(getattr(models.TipoPrueba, sort_by)))
     else:
@@ -206,6 +324,8 @@ def delete_tipo_prueba(db: Session, tipo_prueba_id: int):
     db_tipo_prueba = db.query(models.TipoPrueba).options(
         joinedload(models.TipoPrueba.aplicacion)
     ).filter(models.TipoPrueba.id == tipo_prueba_id).first()
+    if db.query(models.CasoPrueba).filter(models.CasoPrueba.tipo_prueba_id == tipo_prueba_id).count() > 0:
+        raise Exception("No se puede eliminar el tipo de prueba porque está referenciado en CasoPrueba")
     if db_tipo_prueba:
         db.delete(db_tipo_prueba)
         db.commit()
@@ -224,12 +344,11 @@ def get_tipo_usuario(db: Session, tipo_usuario_id: int):
     ).filter(models.TipoUsuario.id == tipo_usuario_id).first()
 
 
-def get_tipos_usuario(db: Session, skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc', filter_column: str = None, filter_value: str = None):
+def get_tipos_usuario(db: Session, skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc', filters: list = []):
     query = db.query(models.TipoUsuario).options(
         joinedload(models.TipoUsuario.aplicacion)
     )
-    if filter_column and filter_value:
-        query = query.filter(getattr(models.TipoUsuario, filter_column).like(f'%{filter_value}%'))
+    query = apply_filters(query, models.TipoUsuario, filters)
     if sort_order == 'desc':
         query = query.order_by(desc(getattr(models.TipoUsuario, sort_by)))
     else:
@@ -250,6 +369,8 @@ def delete_tipo_usuario(db: Session, tipo_usuario_id: int):
     db_tipo_usuario = db.query(models.TipoUsuario).options(
         joinedload(models.TipoUsuario.aplicacion)
     ).filter(models.TipoUsuario.id == tipo_usuario_id).first()
+    if db.query(models.CasoPrueba).filter(models.CasoPrueba.tipo_usuario_id == tipo_usuario_id).count() > 0:
+        raise Exception("No se puede eliminar el tipo de usuario porque está referenciado en CasoPrueba")
     if db_tipo_usuario:
         db.delete(db_tipo_usuario)
         db.commit()
@@ -268,11 +389,12 @@ def get_caso_prueba(db: Session, caso_prueba_id: int):
         joinedload(models.CasoPrueba.so),
         joinedload(models.CasoPrueba.tipo_prueba),
         joinedload(models.CasoPrueba.pantalla),
-        joinedload(models.CasoPrueba.aplicacion)
+        joinedload(models.CasoPrueba.aplicacion),
+        joinedload(models.CasoPrueba.tipo_usuario)  # Asegurarse de cargar tipo_usuario
     ).filter(models.CasoPrueba.id == caso_prueba_id).first()
 
 
-def get_casos_prueba(db: Session, skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc', filter_column: str = None, filter_value: str = None):
+def get_casos_prueba(db: Session, sorts: list = [], pagination: dict = {}, filters: list = []):
     query = db.query(models.CasoPrueba).options(
         joinedload(models.CasoPrueba.funcionalidad),
         joinedload(models.CasoPrueba.so),
@@ -280,13 +402,10 @@ def get_casos_prueba(db: Session, skip: int = 0, limit: int = 10, sort_by: str =
         joinedload(models.CasoPrueba.pantalla),
         joinedload(models.CasoPrueba.aplicacion)
     )
-    if filter_column and filter_value:
-        query = query.filter(getattr(models.CasoPrueba, filter_column).like(f'%{filter_value}%'))
-    if sort_order == 'desc':
-        query = query.order_by(desc(getattr(models.CasoPrueba, sort_by)))
-    else:
-        query = query.order_by(asc(getattr(models.CasoPrueba, sort_by)))
-    casos_prueba = query.offset(skip).limit(limit).all()
+    query = apply_filters(query, models.CasoPrueba, filters)
+    query = apply_sort(query, models.CasoPrueba, sorts)
+    query = apply_pagination(query, pagination)
+    casos_prueba = query.all()
     total = db.query(models.CasoPrueba).count()
     return casos_prueba, total
 
@@ -308,7 +427,8 @@ def delete_caso_prueba(db: Session, caso_prueba_id: int):
         joinedload(models.CasoPrueba.so),
         joinedload(models.CasoPrueba.tipo_prueba),
         joinedload(models.CasoPrueba.pantalla),
-        joinedload(models.CasoPrueba.aplicacion)
+        joinedload(models.CasoPrueba.aplicacion),
+        joinedload(models.CasoPrueba.tipo_usuario)
     ).filter(models.CasoPrueba.id == caso_prueba_id).first()
     if db_caso_prueba:
         db.delete(db_caso_prueba)

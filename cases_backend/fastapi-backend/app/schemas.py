@@ -15,7 +15,7 @@ class Aplicacion(AplicacionBase):
     id: int
 
     class Config:
-        orm_mode = True
+
         from_attributes = True
 
 class PantallaBase(BaseModel):
@@ -33,15 +33,9 @@ class Pantalla(PantallaBase):
     aplicacion: Aplicacion
 
     class Config:
-        orm_mode = True
+
         from_attributes = True
     
-class PantallaFilterParams(BaseModel):
-    skip: int = 0
-    limit: int = 10
-    sort_by: str = 'id'
-    sort_order: str = 'asc'
-    filters: Optional[Dict[str, str]] = None 
 
 class FuncionalidadBase(BaseModel):
     nombre: str
@@ -58,7 +52,7 @@ class Funcionalidad(FuncionalidadBase):
     aplicacion: Aplicacion
 
     class Config:
-        orm_mode = True
+
         from_attributes = True
 
 class SOBase(BaseModel):
@@ -76,7 +70,7 @@ class SO(SOBase):
     aplicacion: Aplicacion
 
     class Config:
-        orm_mode = True
+
         from_attributes = True
 
 class TipoPruebaBase(BaseModel):
@@ -94,7 +88,7 @@ class TipoPrueba(TipoPruebaBase):
     aplicacion: Aplicacion
 
     class Config:
-        orm_mode = True
+
         from_attributes = True
 
 class TipoUsuarioBase(BaseModel):
@@ -112,7 +106,7 @@ class TipoUsuario(TipoUsuarioBase):
     aplicacion: Aplicacion
 
     class Config:
-        orm_mode = True
+
         from_attributes = True
 
 class CasoPruebaBase(BaseModel):
@@ -140,5 +134,5 @@ class CasoPrueba(CasoPruebaBase):
     tipo_usuario: TipoUsuario
 
     class Config:
-        orm_mode = True
+
         from_attributes = True

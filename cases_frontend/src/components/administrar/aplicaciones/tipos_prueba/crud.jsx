@@ -4,6 +4,7 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, B
 import apiCases from '../../../../services/apiCases';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useAlert } from '../../../../contexts/AlertContext';
 
 const CRUDTiposPrueba = ({aplicacion}) => {
   const [data, setData] = useState([]);
@@ -15,6 +16,8 @@ const CRUDTiposPrueba = ({aplicacion}) => {
   const [sortModel, setSortModel] = useState([]);
   const [filterModel, setFilterModel] = useState({});
   const [aplicaciones, setAplicaciones] = useState([]);
+
+  const showAlert = useAlert();
 
   const handleSortModelChange = (newSortModel) => {
     setSortModel(newSortModel);
@@ -47,9 +50,13 @@ const CRUDTiposPrueba = ({aplicacion}) => {
       });
     }
 
-    const response = await apiCases.readTiposPrueba(params);
-    setData(response.data.data);
-    setTotal(response.data.total);
+    try {
+      const response = await apiCases.readTiposPrueba(params);
+      setData(response.data.data);
+      setTotal(response.data.total);
+    } catch (error) {
+      showAlert("Error al obtener los datos", "error");
+    }
   };
 
   useEffect(() => {
@@ -83,29 +90,39 @@ const CRUDTiposPrueba = ({aplicacion}) => {
   };
 
   const handleSubmit = async () => {
-    const aplicacion = aplicaciones.find(app => app.id === formData.aplicacion_id);
-    const payload = {
-      ...formData,
-      aplicacion,
-    };
+    try {
+      const aplicacion = aplicaciones.find(app => app.id === formData.aplicacion_id);
+      const payload = {
+        ...formData,
+        aplicacion,
+      };
 
-    if (isEdit) {
-      await apiCases.updateTipoPrueba(formData.id, payload);
-    } else {
-      await apiCases.createTipoPrueba(payload);
+      if (isEdit) {
+        await apiCases.updateTipoPrueba(formData.id, payload);
+        showAlert("Tipo de prueba actualizado", "success");
+      } else {
+        await apiCases.createTipoPrueba(payload);
+        showAlert("Tipo de prueba creado", "success");
+      }
+      fetchData();
+      handleClose();
+    } catch (error) {
+      showAlert("Error al guardar el tipo de prueba", "error");
     }
-    fetchData();
-    handleClose();
   };
 
   const handleDelete = async (id) => {
-    await apiCases.deleteTipoPrueba(id);
-    fetchData();
+    try {
+      await apiCases.deleteTipoPrueba(id);
+      showAlert("Tipo de prueba eliminado", "success");
+      fetchData();
+    } catch (error) {
+      showAlert("Error al eliminar el tipo de prueba", "error");
+    }
   };
 
   const columns = [
     { field: 'id', headerName: 'ID', width: 90 },
-    { field: 'aplicacion', headerName: 'Aplicacion', width: 150, valueGetter: (params) => params.nombre },
     { field: 'nombre', headerName: 'Nombre', width: 150 },
     {
       field: 'actions',
@@ -129,16 +146,14 @@ const CRUDTiposPrueba = ({aplicacion}) => {
   ];
 
   return (
-    <Container>
       <Box sx={{
         display: 'flex',
         flexDirection: 'column',
         gap: 2,
       }}>
-        <Typography variant="h4">Tipos de Prueba de {aplicacion.nombre}</Typography>
         <Box
           textAlign="right">
-          <Button variant="contained" color="primary" onClick={() => handleOpen(null)}>Add New</Button>
+          <Button variant="contained" color="primary" onClick={() => handleOpen(null)}>Añadir</Button>
         </Box>
         <DataGrid
           rows={data}
@@ -153,7 +168,7 @@ const CRUDTiposPrueba = ({aplicacion}) => {
           onSortModelChange={handleSortModelChange}
           filterMode="server"
           onFilterModelChange={handleFilterModelChange}
-          checkboxSelection
+          checkboxSelection={false}
         />
         <Dialog open={open} onClose={handleClose}>
           <DialogTitle>{isEdit ? 'Edit Tipo de Prueba' : 'Add New Tipo de Prueba'}</DialogTitle>
@@ -183,12 +198,13 @@ const CRUDTiposPrueba = ({aplicacion}) => {
             />
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleClose} color="primary">Cancel</Button>
-            <Button onClick={handleSubmit} color="primary">{isEdit ? 'Update' : 'Add'}</Button>
+            <Button onClick={handleClose} color="primary">Cancelar</Button>
+            <Button onClick={handleSubmit} color="primary">
+              {isEdit ? "Guardar" : "Agregar"}
+            </Button>
           </DialogActions>
         </Dialog>
       </Box>
-    </Container>
   );
 };
 

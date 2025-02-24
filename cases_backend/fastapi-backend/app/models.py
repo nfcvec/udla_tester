@@ -78,3 +78,4 @@ class CasoPrueba(Base):
     tipo_prueba = relationship("TipoPrueba")
     pantalla = relationship("Pantalla")
     tipo_usuario = relationship("TipoUsuario")
+    

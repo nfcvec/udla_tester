@@ -4,6 +4,7 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, B
 import apiCases from '../../../../services/apiCases';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useAlert } from '../../../../contexts/AlertContext';
 
 const CRUDFuncionalidades = ({aplicacion}) => {
   const [data, setData] = useState([]);
@@ -16,6 +17,7 @@ const CRUDFuncionalidades = ({aplicacion}) => {
   const [filterModel, setFilterModel] = useState({});
   const [aplicaciones, setAplicaciones] = useState([]);
 
+  const showAlert = useAlert();
 
   const handleSortModelChange = (newSortModel) => {
     setSortModel(newSortModel);
@@ -54,9 +56,13 @@ const CRUDFuncionalidades = ({aplicacion}) => {
       });
     }
 
-    const response = await apiCases.readFuncionalidades(params);
-    setData(response.data.data);
-    setTotal(response.data.total);
+    try {
+      const response = await apiCases.readFuncionalidades(params);
+      setData(response.data.data);
+      setTotal(response.data.total);
+    } catch (error) {
+      showAlert("Error al obtener los datos", "error");
+    }
   };
 
 
@@ -100,26 +106,33 @@ const CRUDFuncionalidades = ({aplicacion}) => {
       aplicacion,
     };
 
-    if (isEdit) {
-      await apiCases.updateFuncionalidad(formData.id, payload);
-    } else {
-      await apiCases.createFuncionalidad(payload);
+    try {
+      if (isEdit) {
+        await apiCases.updateFuncionalidad(formData.id, payload);
+        showAlert("Funcionalidad actualizada", "success");
+      } else {
+        await apiCases.createFuncionalidad(payload);
+        showAlert("Funcionalidad creada", "success");
+      }
+      fetchData();
+      handleClose();
+    } catch (error) {
+      showAlert("Error al guardar la funcionalidad", "error");
     }
-    fetchData();
-    handleClose();
   };
 
   const handleDelete = async (id) => {
-    await apiCases.deleteFuncionalidad(id);
-    fetchData();
+    try {
+      await apiCases.deleteFuncionalidad(id);
+      showAlert("Funcionalidad eliminada", "success");
+      fetchData();
+    } catch (error) {
+      showAlert("Error al eliminar la funcionalidad", "error");
+    }
   };
 
   const columns = [
     { field: 'id', headerName: 'ID', width: 90 },
-    {
-      field: 'aplicacion', headerName: 'Aplicacion', width: 150,
-      valueGetter: (params) => params.nombre,
-    },
     { field: 'nombre', headerName: 'Nombre', width: 150 },
     {
       field: 'actions',
@@ -143,16 +156,14 @@ const CRUDFuncionalidades = ({aplicacion}) => {
   ];
 
   return (
-    <Container>
       <Box sx={{
         display: 'flex',
         flexDirection: 'column',
         gap: 2,
       }}>
-        <Typography variant="h4">Funcionalidades de {aplicacion.nombre}</Typography>
         <Box
           textAlign="right">
-          <Button variant="contained" color="primary" onClick={() => handleOpen(null)}>Add New</Button>
+          <Button variant="contained" color="primary" onClick={() => handleOpen(null)}>Añadir</Button>
         </Box>
         <DataGrid
           rows={data}
@@ -167,7 +178,7 @@ const CRUDFuncionalidades = ({aplicacion}) => {
           onSortModelChange={handleSortModelChange}
           filterMode="server"
           onFilterModelChange={handleFilterModelChange}
-          checkboxSelection
+          checkboxSelection={false}
         />
         <Dialog open={open} onClose={handleClose}>
           <DialogTitle>{isEdit ? 'Edit Funcionalidad' : 'Add New Funcionalidad'}</DialogTitle>
@@ -197,12 +208,13 @@ const CRUDFuncionalidades = ({aplicacion}) => {
             />
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleClose} color="primary">Cancel</Button>
-            <Button onClick={handleSubmit} color="primary">{isEdit ? 'Update' : 'Add'}</Button>
+            <Button onClick={handleClose} color="primary">Cancelar</Button>
+            <Button onClick={handleSubmit} color="primary">
+              {isEdit ? "Guardar" : "Agregar"}
+            </Button>
           </DialogActions>
         </Dialog>
       </Box>
-    </Container>
   );
 };
 
