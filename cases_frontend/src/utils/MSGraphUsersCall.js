@@ -1,7 +1,7 @@
-import { loginRequest, graphConfig, graphRequest } from "../authConfig";
+import { loginRequest, graphConfig, graphRequest, graphUsersRequest } from "../authConfig";
 import { msalInstance } from "../main";
 
-export async function callMsGraph(accessToken) {
+export async function callMsGraphUsers(accessToken) {
     if (!accessToken) {
         const account = msalInstance.getActiveAccount();
         if (!account) {
@@ -9,7 +9,7 @@ export async function callMsGraph(accessToken) {
         }
     
         const response = await msalInstance.acquireTokenSilent({
-            ...graphRequest,
+            ...graphUsersRequest,
             account: account,
             
         });
@@ -26,7 +26,7 @@ export async function callMsGraph(accessToken) {
         headers: headers
     };
 
-    return fetch(graphConfig.graphMeEndpoint, options)
+    return fetch("https://graph.microsoft.com/users", options)
         .then(response => response.json())
         .catch(error => console.log(error));
 }

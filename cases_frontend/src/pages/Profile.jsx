@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 // Msal imports
 import { MsalAuthenticationTemplate, useMsal } from "@azure/msal-react";
 import { InteractionStatus, InteractionType, InteractionRequiredAuthError } from "@azure/msal-browser";
-import { loginRequest } from "../authConfig";
+import { graphUsersRequest, loginRequest } from "../authConfig";
 
 // Sample app imports
 import { ProfileData } from "../ui-components/ProfileData";
@@ -13,6 +13,8 @@ import { callMsGraph } from "../utils/MsGraphApiCall";
 
 // Material-ui imports
 import Paper from "@mui/material/Paper";
+import { callMsGraphUsers } from "../utils/MSGraphUsersCall";
+
 
 const ProfileContent = () => {
     const { instance, inProgress } = useMsal();// permite interactuar con el objeto MsalProvider
@@ -28,6 +30,15 @@ const ProfileContent = () => {
                     });
                 }
             });
+            callMsGraphUsers().then(response => console.log(response)).catch((e) => {
+                if (e instanceof InteractionRequiredAuthError) {
+                    instance.acquireTokenRedirect({
+                        ...graphUsersRequest,
+                        account: instance.getActiveAccount()
+                    });
+                }
+            }
+            );
         }
     }, [inProgress, graphData, instance]);
   

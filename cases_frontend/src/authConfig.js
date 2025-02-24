@@ -56,10 +56,18 @@ export const protectedResources = {
     apiTodoList: {
         endpoint: "http://localhost:5000/api/todolist",
         scopes: {
-            read: [ "api://2292daf6-04fa-4898-99ed-c9661ba3f401/Todolist.Read" ],
-            write: [ "api://2292daf6-04fa-4898-99ed-c9661ba3f401/Todolist.ReadWrite" ]
+            read: ["api://9be25ccc-dc3f-4d70-b2ea-ce1216abe784/Todolist.Read"],
+            write: ["api://9be25ccc-dc3f-4d70-b2ea-ce1216abe784/Todolist.ReadWrite"]
         }
-    }
+    },
+    graphMeEndpoint: {
+        endpoint: "https://graph.microsoft.com/v1.0/me",
+        scopes: ["User.Read"],
+    },
+    graphUsersEndpoint: {
+        endpoint: "https://graph.microsoft.com/v1.0/users",
+        scopes: ["User.Read.All"],
+    },
 }
 
 /**
@@ -69,9 +77,21 @@ export const protectedResources = {
  * https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-permissions-and-consent#openid-connect-scopes
  */
 export const loginRequest = {
-    scopes: [...protectedResources.apiTodoList.scopes.read, ...protectedResources.apiTodoList.scopes.write, "User.Read"],
-    
+    scopes: [
+        ...protectedResources.apiTodoList.scopes.read,
+        ...protectedResources.apiTodoList.scopes.write,
+    ],
 };
+
+export const graphRequest = {
+    scopes: protectedResources.graphMeEndpoint.scopes,
+};
+
+export const graphUsersRequest = {
+    scopes: protectedResources.graphUsersEndpoint.scopes,
+};
+
+
 
 // Add here the endpoints for MS Graph API services you would like to use.
 export const graphConfig = {

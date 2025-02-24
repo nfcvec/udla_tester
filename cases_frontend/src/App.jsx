@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Link, useNavigate } from 'react-router-dom';
 import Administrar from './components/administrar/administrar';
-import Asignar from './components/asignar/asignar';
+import Asignar from './components/asignar/Asignar';
 import Resultados from './components/resultados/resultados';
 import {
     Drawer,
