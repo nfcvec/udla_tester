@@ -26,7 +26,6 @@ dist-ssr
 # python fastapi
 __pycache__
 .env
-.env.*
 .venv
 venv
 cases_backend/fastapi-backend/test.db
