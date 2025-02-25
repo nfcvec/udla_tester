@@ -15,18 +15,17 @@ export const SignInButton = () => {
     const handleLogin = (loginType) => {
         setAnchorEl(null);
 
+        const loginScopes = loginType === "popup" ? loginRequest.scopes : graphUsersRequest.scopes;
+
         if (loginType === "popup") {
-        /**
-         * When using popup and silent APIs, we recommend setting the redirectUri to a blank page or a page 
-         * that does not implement MSAL. Keep in mind that all redirect routes must be registered with the application
-         * For more information, visit: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/login-user.md#redirecturi-considerations 
-         */
             instance.loginPopup({
-                ...loginRequest,
-                redirectUri: import.meta.env.VITE_POPUP_REDIRECT_URI, // e.g. /redirect
+                scopes: loginScopes,
+                redirectUri: import.meta.env.VITE_POPUP_REDIRECT_URI,
             });
         } else if (loginType === "redirect") {
-            instance.loginRedirect(loginRequest);
+            instance.loginRedirect({
+                scopes: loginScopes,
+            });
         }
     }
 

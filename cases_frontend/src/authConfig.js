@@ -60,15 +60,21 @@ export const protectedResources = {
             write: ["api://9be25ccc-dc3f-4d70-b2ea-ce1216abe784/Todolist.ReadWrite"]
         }
     },
-    graphMeEndpoint: {
-        endpoint: "https://graph.microsoft.com/v1.0/me",
-        scopes: ["User.Read"],
-    },
-    graphUsersEndpoint: {
-        endpoint: "https://graph.microsoft.com/v1.0/users",
-        scopes: ["User.Read.All"],
-    },
-}
+    graph: {
+        me: {
+            endpoint: "https://graph.microsoft.com/v1.0/me",
+            scopes: ["User.Read"],
+        },
+        users: {
+            endpoint: "https://graph.microsoft.com/v1.0/users",
+            scopes: ["User.Read.All"],
+        },
+        photo: {
+            endpoint: "https://graph.microsoft.com/v1.0/users/{id}/photo/$value",
+            scopes: [],
+        }
+    }
+};
 
 /**
  * Scopes you add here will be prompted for user consent during sign-in.
@@ -80,20 +86,22 @@ export const loginRequest = {
     scopes: [
         ...protectedResources.apiTodoList.scopes.read,
         ...protectedResources.apiTodoList.scopes.write,
+        ...protectedResources.graph.me.scopes,
+        ...protectedResources.graph.users.scopes
     ],
 };
 
 export const graphRequest = {
-    scopes: protectedResources.graphMeEndpoint.scopes,
+    scopes: protectedResources.graph.me.scopes,
 };
 
 export const graphUsersRequest = {
-    scopes: protectedResources.graphUsersEndpoint.scopes,
+    scopes: protectedResources.graph.users.scopes,
 };
-
-
 
 // Add here the endpoints for MS Graph API services you would like to use.
 export const graphConfig = {
-    graphMeEndpoint: "https://graph.microsoft.com/v1.0/me"
+    graphMeEndpoint: protectedResources.graph.me.endpoint,
+    graphUsersEndpoint: protectedResources.graph.users.endpoint,
+    graphPhotoEndpoint: protectedResources.graph.photo.endpoint,
 };

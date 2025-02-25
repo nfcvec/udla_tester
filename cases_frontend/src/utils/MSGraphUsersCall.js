@@ -1,7 +1,10 @@
 import { loginRequest, graphConfig, graphRequest, graphUsersRequest } from "../authConfig";
 import { msalInstance } from "../main";
 
-export async function callMsGraphUsers(accessToken) {
+export async function callMsGraphUsers({
+    accessToken,
+    search
+}) {
     if (!accessToken) {
         const account = msalInstance.getActiveAccount();
         if (!account) {
@@ -9,7 +12,7 @@ export async function callMsGraphUsers(accessToken) {
         }
     
         const response = await msalInstance.acquireTokenSilent({
-            ...graphUsersRequest,
+            scopes: graphRequest.scopes,
             account: account,
             
         });
@@ -26,7 +29,13 @@ export async function callMsGraphUsers(accessToken) {
         headers: headers
     };
 
-    return fetch("https://graph.microsoft.com/users", options)
+    const url = new URL("https://graph.microsoft.com/v1.0/users");
+    url.searchParams.append("$top", "10");
+    if (search){
+    url.searchParams.append("$search", `"displayName:${search}" OR "mail:${search}" OR "userPrincipalName:${search}"`);
+    }
+
+    return fetch(url, options)
         .then(response => response.json())
         .catch(error => console.log(error));
 }

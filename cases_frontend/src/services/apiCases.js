@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_CASES_BACKEND_URL;
 
 const apiCases = {
   createAplicacion: (data) => axios.post(`${API_BASE_URL}/aplicacion/`, data),

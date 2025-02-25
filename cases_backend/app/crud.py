@@ -220,8 +220,8 @@ def get_funcionalidades(db: Session, skip: int = 0, limit: int = 10, sort_by: st
         query = query.order_by(desc(getattr(models.Funcionalidad, sort_by)))
     else:
         query = query.order_by(asc(getattr(models.Funcionalidad, sort_by)))
+    total = query.count()
     funcionalidades = query.offset(skip).limit(limit).all()    
-    total = db.query(models.Funcionalidad).count()
     return funcionalidades, total
 
 def update_funcionalidad(db: Session, funcionalidad_id: int, funcionalidad: schemas.FuncionalidadUpdate):
@@ -264,8 +264,9 @@ def get_sos(db: Session, skip: int = 0, limit: int = 10, sort_by: str = 'id', so
         query = query.order_by(desc(getattr(models.SO, sort_by)))
     else:
         query = query.order_by(asc(getattr(models.SO, sort_by)))
+        
+    total = query.count()
     sos = query.offset(skip).limit(limit).all()
-    total = db.query(models.SO).count()
     return sos, total
 
 def update_so(db: Session, so_id: int, so: schemas.SOUpdate):
@@ -308,8 +309,8 @@ def get_tipos_prueba(db: Session, skip: int = 0, limit: int = 10, sort_by: str =
         query = query.order_by(desc(getattr(models.TipoPrueba, sort_by)))
     else:
         query = query.order_by(asc(getattr(models.TipoPrueba, sort_by)))
+    total = query.count()
     tipos_prueba = query.offset(skip).limit(limit).all()
-    total = db.query(models.TipoPrueba).count()
     return tipos_prueba, total
 
 def update_tipo_prueba(db: Session, tipo_prueba_id: int, tipo_prueba: schemas.TipoPruebaUpdate):
@@ -353,8 +354,8 @@ def get_tipos_usuario(db: Session, skip: int = 0, limit: int = 10, sort_by: str 
         query = query.order_by(desc(getattr(models.TipoUsuario, sort_by)))
     else:
         query = query.order_by(asc(getattr(models.TipoUsuario, sort_by)))
+    total = query.count()
     tipos_usuario = query.offset(skip).limit(limit).all()
-    total = db.query(models.TipoUsuario).count()
     return tipos_usuario, total
 
 def update_tipo_usuario(db: Session, tipo_usuario_id: int, tipo_usuario: schemas.TipoUsuarioUpdate):
@@ -405,8 +406,8 @@ def get_casos_prueba(db: Session, sorts: list = [], pagination: dict = {}, filte
     query = apply_filters(query, models.CasoPrueba, filters)
     query = apply_sort(query, models.CasoPrueba, sorts)
     query = apply_pagination(query, pagination)
+    total = query.count()
     casos_prueba = query.all()
-    total = db.query(models.CasoPrueba).count()
     return casos_prueba, total
 
 def update_caso_prueba(db: Session, caso_prueba_id: int, caso_prueba: schemas.CasoPruebaUpdate):

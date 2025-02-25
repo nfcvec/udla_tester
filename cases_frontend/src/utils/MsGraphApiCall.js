@@ -11,7 +11,6 @@ export async function callMsGraph(accessToken) {
         const response = await msalInstance.acquireTokenSilent({
             ...graphRequest,
             account: account,
-            
         });
         accessToken = response.accessToken;
     }

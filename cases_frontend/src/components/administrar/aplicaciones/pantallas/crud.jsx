@@ -53,7 +53,6 @@ const CRUDPantallas = ({aplicacion}) => {
       filters = filters.concat(filterModel.items);
     }
 
-    console.log('filters', filters);
     if (filters.length > 0) {
       params.filters = JSON.stringify(filters);
     }
