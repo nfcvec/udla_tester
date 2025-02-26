@@ -1,5 +1,0 @@
-FastAPI
-SQLAlchemy
-uvicorn
-pydantic
-alembic

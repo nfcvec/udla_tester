@@ -4,20 +4,12 @@ import { Box, Typography } from '@mui/material';
 import apiCases from '../../../../services/apiCases';
 import { useAlert } from '../../../../contexts/AlertContext';
 
-const SelectorFuncionalidades = ({ aplicacion, isMultiple, funcionalidad, funcionalidades, setFuncionalidad, setFuncionalidades }) => {
+const SelectorFuncionalidades = ({ prefilters, isMultiple, funcionalidad, funcionalidades, setFuncionalidad, setFuncionalidades }) => {
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
 
   const [sortModel, setSortModel] = useState([]);
-  const [filterModel, setFilterModel] = useState({
-    items: [
-      {
-        columnField: 'aplicacion_id', operatorValue: 'equals', value: aplicacion
-          ? aplicacion.id
-          : ''
-      },
-    ],
-  });
+  const [filterModel, setFilterModel] = useState({ items: [] });
   const [selectionModel, setSelectionModel] = useState(
     funcionalidad
       ? [funcionalidad.id]
@@ -43,27 +35,40 @@ const SelectorFuncionalidades = ({ aplicacion, isMultiple, funcionalidad, funcio
 
   const fetchData = async () => {
     const params = {
-      limit: paginationModel.pageSize,
-      skip: paginationModel.page * paginationModel.pageSize,
+      pagination: JSON.stringify(paginationModel),
     };
 
     if (sortModel.length > 0) {
-      params.sort_by = sortModel[0].field;
-      params.sort_order = sortModel[0].sort;
-    }
-    // Always filter by aplicacion.id if present
-    let filters = [];
-
-    if (aplicacion && aplicacion.id) {
-      filters.push({ field: 'aplicacion_id', operator: 'equals', value: aplicacion.id });
+      params.sorts = JSON.stringify(sortModel);
     }
 
-    if (filterModel.items && filterModel.items.length > 0) {
-      filters = filters.concat(filterModel.items);
+    const filters = [];
+
+    if (prefilters) {
+      filters.push(...prefilters);
+    }
+
+
+    if (filterModel.items) {
+      filterModel.items.forEach((item) => {
+        filters.push({
+          field: item.field,
+          operator: item.operator,
+          value: item.value,
+        });
+      });
     }
 
     if (filters.length > 0) {
       params.filters = JSON.stringify(filters);
+    }
+
+    if (paginationModel) {
+      params.pagination = JSON.stringify(paginationModel);
+    }
+
+    if (sortModel) {
+      params.sort = JSON.stringify(sortModel);
     }
 
     try {
@@ -117,7 +122,7 @@ const SelectorFuncionalidades = ({ aplicacion, isMultiple, funcionalidad, funcio
         filterMode="server"
         onFilterModelChange={handleFilterModelChange}
         rowSelection="multiple"
-        keepNonExistentRowsSelected 
+        keepNonExistentRowsSelected
         rowSelectionModel={selectionModel}
         onRowSelectionModelChange={(newSelection) => {
           console.log('Seleccion:', newSelection);

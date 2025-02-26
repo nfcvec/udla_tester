@@ -2,7 +2,7 @@ import { Box, FormGroup, FormLabel, TextField } from '@mui/material';
 import React from 'react';
 import { useAsignar } from '../context/AsignarContext';
 
-export default function NombreAsignacion() {
+export default function DatosAsignacion() {
   const { asignacion, setAsignacion } = useAsignar();
 
   const handleChange = (e) => {

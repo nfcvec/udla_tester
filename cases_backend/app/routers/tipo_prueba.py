@@ -11,12 +11,11 @@ def create_tipo_prueba(tipo_prueba: schemas.TipoPruebaCreate, db: Session = Depe
     return crud.create_tipo_prueba(db=db, tipo_prueba=tipo_prueba)
 
 @router.get("/", response_model=dict)
-def read_tipos_prueba(skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc', filters: str = Query('[]'), db: Session = Depends(get_db)):
-    if filters:
-        filters = json.loads(filters)
-    else:
-        filters = []
-    tipo_pruebas, total = crud.get_tipos_prueba(db, skip=skip, limit=limit, sort_by=sort_by, sort_order=sort_order, filters=filters)
+def read_tipos_prueba(sorts: str = Query('[]'), pagination: str = Query('{}'), filters: str = Query('[]'), db: Session = Depends(get_db)):
+    filters = json.loads(filters)
+    sorts = json.loads(sorts)
+    pagination = json.loads(pagination)
+    tipo_pruebas, total = crud.get_tipos_prueba(db, sorts=sorts, filters=filters, pagination=pagination)
     return {"data": [schemas.TipoPrueba.model_validate(tipo_prueba) for tipo_prueba in tipo_pruebas], "total": total}
 
 @router.get("/{tipo_prueba_id}", response_model=schemas.TipoPrueba)

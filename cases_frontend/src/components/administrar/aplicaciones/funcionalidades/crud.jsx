@@ -6,7 +6,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useAlert } from '../../../../contexts/AlertContext';
 
-const CRUDFuncionalidades = ({aplicacion}) => {
+const CRUDFuncionalidades = ({ aplicacion }) => {
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
   const [open, setOpen] = useState(false);
@@ -34,26 +34,44 @@ const CRUDFuncionalidades = ({aplicacion}) => {
 
   const fetchData = async () => {
     const params = {
-      limit: paginationModel.pageSize,
-      skip: paginationModel.page * paginationModel.pageSize,
+      pagination: JSON.stringify(paginationModel),
     };
 
-    if(aplicacion?.nombre){
-      params.filter_column = 'aplicacion_id';
-      params.filter_value = aplicacion.id;
-    }
-
     if (sortModel.length > 0) {
-      params.sort_by = sortModel[0].field;
-      params.sort_order = sortModel[0].sort;
+      params.sorts = JSON.stringify(sortModel);
     }
 
-    if (filterModel.items && filterModel.items.length > 0) {
-      console.log(filterModel);
-      filterModel.items.forEach((filter) => {
-        params.filter_column = filter.field;
-        params.filter_value = filter.value;
+    const filters = [];
+
+    if (aplicacion.id) {
+      filters.push({
+        field: "aplicacion_id",
+        operator: "equals",
+        value: aplicacion.id,
       });
+    }
+
+
+    if (filterModel.items) {
+      filterModel.items.forEach((item) => {
+        filters.push({
+          field: item.field,
+          operator: item.operator,
+          value: item.value,
+        });
+      });
+    }
+
+    if (filters.length > 0) {
+      params.filters = JSON.stringify(filters);
+    }
+
+    if (paginationModel) {
+      params.pagination = JSON.stringify(paginationModel);
+    }
+
+    if (sortModel) {
+      params.sort = JSON.stringify(sortModel);
     }
 
     try {
@@ -156,65 +174,65 @@ const CRUDFuncionalidades = ({aplicacion}) => {
   ];
 
   return (
-      <Box sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 2,
-      }}>
-        <Box
-          textAlign="right">
-          <Button variant="contained" color="primary" onClick={() => handleOpen(null)}>Añadir</Button>
-        </Box>
-        <DataGrid
-          rows={data}
-          columns={columns}
-          pageSizeOptions={[5]}
-          paginationModel={paginationModel}
-          onPaginationModelChange={setPaginationModel}
-          rowCount={total}
-          paginationMode="server"
-          sortingMode="server"
-          sortModel={sortModel}
-          onSortModelChange={handleSortModelChange}
-          filterMode="server"
-          onFilterModelChange={handleFilterModelChange}
-          checkboxSelection={false}
-        />
-        <Dialog open={open} onClose={handleClose}>
-          <DialogTitle>{isEdit ? 'Edit Funcionalidad' : 'Add New Funcionalidad'}</DialogTitle>
-          <DialogContent>
-            <Select
-              autoFocus
-              margin="dense"
-              name="aplicacion_id"
-              label="Aplicacion"
-              fullWidth
-              value={formData.aplicacion_id}
-              onChange={handleChange}
-            >
-              {aplicaciones.map((aplicacion) => (
-                <MenuItem key={aplicacion.id} value={aplicacion.id}>{aplicacion.nombre}</MenuItem>
-              ))}
-            </Select>
-            <TextField
-              autoFocus
-              margin="dense"
-              name="nombre"
-              label="Nombre"
-              type="text"
-              fullWidth
-              value={formData.nombre}
-              onChange={handleChange}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose} color="primary">Cancelar</Button>
-            <Button onClick={handleSubmit} color="primary">
-              {isEdit ? "Guardar" : "Agregar"}
-            </Button>
-          </DialogActions>
-        </Dialog>
+    <Box sx={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 2,
+    }}>
+      <Box
+        textAlign="right">
+        <Button variant="contained" color="primary" onClick={() => handleOpen(null)}>Añadir</Button>
       </Box>
+      <DataGrid
+        rows={data}
+        columns={columns}
+        pageSizeOptions={[5]}
+        paginationModel={paginationModel}
+        onPaginationModelChange={setPaginationModel}
+        rowCount={total}
+        paginationMode="server"
+        sortingMode="server"
+        sortModel={sortModel}
+        onSortModelChange={handleSortModelChange}
+        filterMode="server"
+        onFilterModelChange={handleFilterModelChange}
+        checkboxSelection={false}
+      />
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>{isEdit ? 'Edit Funcionalidad' : 'Add New Funcionalidad'}</DialogTitle>
+        <DialogContent>
+          <Select
+            autoFocus
+            margin="dense"
+            name="aplicacion_id"
+            label="Aplicacion"
+            fullWidth
+            value={formData.aplicacion_id}
+            onChange={handleChange}
+          >
+            {aplicaciones.map((aplicacion) => (
+              <MenuItem key={aplicacion.id} value={aplicacion.id}>{aplicacion.nombre}</MenuItem>
+            ))}
+          </Select>
+          <TextField
+            autoFocus
+            margin="dense"
+            name="nombre"
+            label="Nombre"
+            type="text"
+            fullWidth
+            value={formData.nombre}
+            onChange={handleChange}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">Cancelar</Button>
+          <Button onClick={handleSubmit} color="primary">
+            {isEdit ? "Guardar" : "Agregar"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
   );
 };
 

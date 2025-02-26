@@ -68,34 +68,36 @@ def apply_filters(query, model, filters):
 
 def apply_sort(query, model, sorts: list):
     # [{"field":"funcionalidad","sort":"asc"}]
+    print(sorts)
     if sorts:
         for sort in sorts:
             if 'field' not in sort.keys() or 'sort' not in sort.keys():
                 continue
             field = sort['field']
             sort_order = sort['sort']
+            temp_model = model
             if field == 'aplicacion':
-                model = models.Aplicacion
+                temp_model = models.Aplicacion
                 field = 'nombre'
             elif field == 'pantalla':
-                model = models.Pantalla
+                temp_model = models.Pantalla
                 field = 'nombre'
             elif field == 'funcionalidad':
-                model = models.Funcionalidad
+                temp_model = models.Funcionalidad
                 field = 'nombre'
             elif field == 'so':
-                model = models.SO
+                temp_model = models.SO
                 field = 'nombre'
             elif field == 'tipo_prueba':
-                model = models.TipoPrueba
+                temp_model = models.TipoPrueba
                 field = 'nombre'
             elif field == 'tipo_usuario':
-                model = models.TipoUsuario
+                temp_model = models.TipoUsuario
                 field = 'nombre'
             if sort_order == 'desc':
-                query = query.order_by(desc(getattr(model, field)))
+                query = query.order_by(desc(getattr(temp_model, field)))
             else:
-                query = query.order_by(asc(getattr(model, field)))
+                query = query.order_by(asc(getattr(temp_model, field)))
     return query
 
 def apply_pagination(query, pagination: dict):
@@ -108,7 +110,7 @@ def apply_pagination(query, pagination: dict):
     
 
 def create_aplicacion(db: Session, aplicacion: schemas.AplicacionCreate):
-    db_aplicacion = models.Aplicacion(**aplicacion.dict())
+    db_aplicacion = models.Aplicacion(**aplicacion.model_dump())
     db.add(db_aplicacion)
     db.commit()
     db.refresh(db_aplicacion)
@@ -120,10 +122,10 @@ def get_aplicacion(db: Session, aplicacion_id: int):
 def get_aplicaciones(db: Session, sorts: list = [], pagination: dict = {}, filters: list = []):
     query = db.query(models.Aplicacion)
     query = apply_filters(query, models.Aplicacion, filters)
+    total = query.count()
     query = apply_sort(query, models.Aplicacion, sorts)
     query = apply_pagination(query, pagination)
     aplicaciones = query.all()
-    total = db.query(models.Aplicacion).count()
     return aplicaciones, total
 
 def update_aplicacion(db: Session, aplicacion_id: int, aplicacion: schemas.AplicacionUpdate):
@@ -152,7 +154,7 @@ def delete_aplicacion(db: Session, aplicacion_id: int):
     return db_aplicacion
 
 def create_pantalla(db: Session, pantalla: schemas.PantallaCreate):
-    db_pantalla = models.Pantalla(**pantalla.dict())
+    db_pantalla = models.Pantalla(**pantalla.model_dump())
     db.add(db_pantalla)
     db.commit()
     db.refresh(db_pantalla)
@@ -161,15 +163,13 @@ def create_pantalla(db: Session, pantalla: schemas.PantallaCreate):
 def get_pantalla(db: Session, pantalla_id: int):
     return db.query(models.Pantalla).filter(models.Pantalla.id == pantalla_id).first()
 
-def get_pantallas(db: Session, skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc', filters: list = []):
+def get_pantallas(db: Session, sorts: list = [], pagination: dict = {}, filters: list = []):
     query = db.query(models.Pantalla).join(models.Aplicacion)
-    query = apply_filters(query, models.Pantalla, filters)            
-    if sort_order == 'desc':
-        query = query.order_by(desc(getattr(models.Pantalla, sort_by)))
-    else:
-        query = query.order_by(asc(getattr(models.Pantalla, sort_by)))
-    pantallas = query.offset(skip).limit(limit).all()
+    query = apply_filters(query, models.Pantalla, filters)
     total = query.count()
+    query = apply_sort(query, models.Pantalla, sorts)
+    query = apply_pagination(query, pagination)
+    pantallas = query.all()
     return pantallas, total
 
 def update_pantalla(db: Session, pantalla_id: int, pantalla: schemas.PantallaUpdate):
@@ -211,17 +211,15 @@ def get_funcionalidad(db: Session, funcionalidad_id: int):
         joinedload(models.Funcionalidad.aplicacion)
     ).filter(models.Funcionalidad.id == funcionalidad_id).first()
 
-def get_funcionalidades(db: Session, skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc', filters: list = []):
+def get_funcionalidades(db: Session, sorts: list = [], pagination: dict = {}, filters: list = []):
     query = db.query(models.Funcionalidad).options(
         joinedload(models.Funcionalidad.aplicacion)
     )
     query = apply_filters(query, models.Funcionalidad, filters)
-    if sort_order == 'desc':
-        query = query.order_by(desc(getattr(models.Funcionalidad, sort_by)))
-    else:
-        query = query.order_by(asc(getattr(models.Funcionalidad, sort_by)))
     total = query.count()
-    funcionalidades = query.offset(skip).limit(limit).all()    
+    query = apply_sort(query, models.Funcionalidad, sorts)
+    query = apply_pagination(query, pagination)
+    funcionalidades = query.all()
     return funcionalidades, total
 
 def update_funcionalidad(db: Session, funcionalidad_id: int, funcionalidad: schemas.FuncionalidadUpdate):
@@ -244,7 +242,7 @@ def delete_funcionalidad(db: Session, funcionalidad_id: int):
     return db_funcionalidad
 
 def create_so(db: Session, so: schemas.SOCreate):
-    db_so = models.SO(**so.dict())
+    db_so = models.SO(**so.model_dump())
     db.add(db_so)
     db.commit()
     db.refresh(db_so)
@@ -255,18 +253,15 @@ def get_so(db: Session, so_id: int):
         joinedload(models.SO.aplicacion)
     ).filter(models.SO.id == so_id).first()
 
-def get_sos(db: Session, skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc', filters: list = []):
+def get_sos(db: Session, sorts: list = [], pagination: dict = {}, filters: list = []):
     query = db.query(models.SO).options(
         joinedload(models.SO.aplicacion)
     )
     query = apply_filters(query, models.SO, filters)
-    if sort_order == 'desc':
-        query = query.order_by(desc(getattr(models.SO, sort_by)))
-    else:
-        query = query.order_by(asc(getattr(models.SO, sort_by)))
-        
     total = query.count()
-    sos = query.offset(skip).limit(limit).all()
+    query = apply_sort(query, models.SO, sorts)
+    query = apply_pagination(query, pagination)
+    sos = query.all()
     return sos, total
 
 def update_so(db: Session, so_id: int, so: schemas.SOUpdate):
@@ -289,7 +284,7 @@ def delete_so(db: Session, so_id: int):
     return db_so
 
 def create_tipo_prueba(db: Session, tipo_prueba: schemas.TipoPruebaCreate):
-    db_tipo_prueba = models.TipoPrueba(**tipo_prueba.dict())
+    db_tipo_prueba = models.TipoPrueba(**tipo_prueba.model_dump())
     db.add(db_tipo_prueba)
     db.commit()
     db.refresh(db_tipo_prueba)
@@ -300,17 +295,15 @@ def get_tipo_prueba(db: Session, tipo_prueba_id: int):
         joinedload(models.TipoPrueba.aplicacion)
     ).filter(models.TipoPrueba.id == tipo_prueba_id).first()
 
-def get_tipos_prueba(db: Session, skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc', filters: list = []):
+def get_tipos_prueba(db: Session, sorts: list = [], pagination: dict = {}, filters: list = []):
     query = db.query(models.TipoPrueba).options(
         joinedload(models.TipoPrueba.aplicacion)
     )
     query = apply_filters(query, models.TipoPrueba, filters)
-    if sort_order == 'desc':
-        query = query.order_by(desc(getattr(models.TipoPrueba, sort_by)))
-    else:
-        query = query.order_by(asc(getattr(models.TipoPrueba, sort_by)))
     total = query.count()
-    tipos_prueba = query.offset(skip).limit(limit).all()
+    query = apply_sort(query, models.TipoPrueba, sorts)
+    query = apply_pagination(query, pagination)
+    tipos_prueba = query.all()
     return tipos_prueba, total
 
 def update_tipo_prueba(db: Session, tipo_prueba_id: int, tipo_prueba: schemas.TipoPruebaUpdate):
@@ -333,7 +326,7 @@ def delete_tipo_prueba(db: Session, tipo_prueba_id: int):
     return db_tipo_prueba
 
 def create_tipo_usuario(db: Session, tipo_usuario: schemas.TipoUsuarioCreate):
-    db_tipo_usuario = models.TipoUsuario(**tipo_usuario.dict())
+    db_tipo_usuario = models.TipoUsuario(**tipo_usuario.model_dump())
     db.add(db_tipo_usuario)
     db.commit()
     db.refresh(db_tipo_usuario)
@@ -345,17 +338,15 @@ def get_tipo_usuario(db: Session, tipo_usuario_id: int):
     ).filter(models.TipoUsuario.id == tipo_usuario_id).first()
 
 
-def get_tipos_usuario(db: Session, skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc', filters: list = []):
+def get_tipos_usuario(db: Session, sorts: list = [], pagination: dict = {}, filters: list = []):
     query = db.query(models.TipoUsuario).options(
         joinedload(models.TipoUsuario.aplicacion)
     )
     query = apply_filters(query, models.TipoUsuario, filters)
-    if sort_order == 'desc':
-        query = query.order_by(desc(getattr(models.TipoUsuario, sort_by)))
-    else:
-        query = query.order_by(asc(getattr(models.TipoUsuario, sort_by)))
     total = query.count()
-    tipos_usuario = query.offset(skip).limit(limit).all()
+    query = apply_sort(query, models.TipoUsuario, sorts)
+    query = apply_pagination(query, pagination)
+    tipos_usuario = query.all()
     return tipos_usuario, total
 
 def update_tipo_usuario(db: Session, tipo_usuario_id: int, tipo_usuario: schemas.TipoUsuarioUpdate):
@@ -378,7 +369,7 @@ def delete_tipo_usuario(db: Session, tipo_usuario_id: int):
     return db_tipo_usuario
 
 def create_caso_prueba(db: Session, caso_prueba: schemas.CasoPruebaCreate):
-    db_caso_prueba = models.CasoPrueba(**caso_prueba.dict())
+    db_caso_prueba = models.CasoPrueba(**caso_prueba.model_dump())
     db.add(db_caso_prueba)
     db.commit()
     db.refresh(db_caso_prueba)
@@ -401,12 +392,13 @@ def get_casos_prueba(db: Session, sorts: list = [], pagination: dict = {}, filte
         joinedload(models.CasoPrueba.so),
         joinedload(models.CasoPrueba.tipo_prueba),
         joinedload(models.CasoPrueba.pantalla),
-        joinedload(models.CasoPrueba.aplicacion)
+        joinedload(models.CasoPrueba.aplicacion),
+        joinedload(models.CasoPrueba.tipo_usuario)
     )
     query = apply_filters(query, models.CasoPrueba, filters)
+    total = query.count()
     query = apply_sort(query, models.CasoPrueba, sorts)
     query = apply_pagination(query, pagination)
-    total = query.count()
     casos_prueba = query.all()
     return casos_prueba, total
 
@@ -435,3 +427,118 @@ def delete_caso_prueba(db: Session, caso_prueba_id: int):
         db.delete(db_caso_prueba)
         db.commit()
     return db_caso_prueba
+
+def create_funcionalidades_proceso(db: Session, funcionalidades_proceso: schemas.FuncionalidadesProcesoCreate):
+    db_funcionalidades_proceso = models.FuncionalidadesProceso(**funcionalidades_proceso.model_dump())
+    db.add(db_funcionalidades_proceso)
+    db.commit()
+    db.refresh(db_funcionalidades_proceso)
+    return db_funcionalidades_proceso
+
+def get_funcionalidades_proceso(db: Session, funcionalidades_proceso_id: int):
+    return db.query(models.FuncionalidadesProceso).filter(models.FuncionalidadesProceso.id == funcionalidades_proceso_id).first()
+
+def get_funcionalidades_procesos(db: Session, filters: list = [], sorts: list = [], pagination: dict = {}):
+    query = db.query(models.FuncionalidadesProceso)
+    query = apply_filters(query, models.FuncionalidadesProceso, filters)
+    total = query.count()
+    query = apply_sort(query, models.FuncionalidadesProceso, sorts)
+    query = apply_pagination(query, pagination)
+    funcionalidades_procesos = query.all()
+    return funcionalidades_procesos, total
+
+def update_funcionalidades_proceso(db: Session, funcionalidades_proceso_id: int, funcionalidades_proceso: schemas.FuncionalidadesProcesoUpdate):
+    db_funcionalidades_proceso = db.query(models.FuncionalidadesProceso).filter(models.FuncionalidadesProceso.id == funcionalidades_proceso_id).first()
+    db_funcionalidades_proceso.funcionalidad_id = funcionalidades_proceso.funcionalidad_id
+    db_funcionalidades_proceso.proceso_id = funcionalidades_proceso.proceso_id
+    db.commit()
+    db.refresh(db_funcionalidades_proceso)
+    return db_funcionalidades_proceso
+
+def delete_funcionalidades_proceso(db: Session, funcionalidades_proceso_id: int):
+    db_funcionalidades_proceso = db.query(models.FuncionalidadesProceso).filter(models.FuncionalidadesProceso.id == funcionalidades_proceso_id).first()
+    if db_funcionalidades_proceso:
+        db.delete(db_funcionalidades_proceso)
+        db.commit()
+    return db_funcionalidades_proceso
+
+def create_testers_proceso(db: Session, testers_proceso: schemas.TestersProcesoCreate):
+    db_testers_proceso = models.TestersProceso(**testers_proceso.model_dump())
+    db.add(db_testers_proceso)
+    db.commit()
+    db.refresh(db_testers_proceso)
+    return db_testers_proceso
+
+def get_testers_proceso(db: Session, testers_proceso_id: int):
+    return db.query(models.TestersProceso).filter(models.TestersProceso.id == testers_proceso_id).first()
+
+def get_testers_procesos(db: Session, filters: list = [], sorts: list = [], pagination: dict = {}):
+    query = db.query(models.TestersProceso)
+    query = apply_filters(query, models.TestersProceso, filters)
+    total = query.count()
+    query = apply_sort(query, models.TestersProceso, sorts)
+    query = apply_pagination(query, pagination)
+    testers_procesos = query.all()
+    return testers_procesos, total
+
+def update_testers_proceso(db: Session, testers_proceso_id: int, testers_proceso: schemas.TestersProcesoUpdate):
+    db_testers_proceso = db.query(models.TestersProceso).filter(models.TestersProceso.id == testers_proceso_id).first()
+    db_testers_proceso.proceso_id = testers_proceso.proceso_id
+    db_testers_proceso.tester_id = testers_proceso.tester_id
+    db.commit()
+    db.refresh(db_testers_proceso)
+    return db_testers_proceso
+
+def delete_testers_proceso(db: Session, testers_proceso_id: int):
+    db_testers_proceso = db.query(models.TestersProceso).filter(models.TestersProceso.id == testers_proceso_id).first()
+    if db_testers_proceso:
+        db.delete(db_testers_proceso)
+        db.commit()
+    return db_testers_proceso
+
+def create_proceso(db: Session, proceso: schemas.ProcesoCreate):
+    db_proceso = models.Proceso(**proceso.model_dump())
+    db.add(db_proceso)
+    db.commit()
+    db.refresh(db_proceso)
+    return db_proceso
+
+def get_proceso(db: Session, proceso_id: int):
+    return db.query(models.Proceso).options(
+        joinedload(models.Proceso.aplicacion),
+        joinedload(models.Proceso.funcionalidades_proceso),
+        joinedload(models.Proceso.testers_proceso)
+    ).filter(models.Proceso.id == proceso_id).first()
+
+def get_procesos(db: Session, sorts: list = [], pagination: dict = {}, filters: list = []):
+    query = db.query(models.Proceso).options(
+        joinedload(models.Proceso.aplicacion),
+        joinedload(models.Proceso.funcionalidades_proceso),
+        joinedload(models.Proceso.testers_proceso)
+    )
+    query = apply_filters(query, models.Proceso, filters)
+    total = query.count()
+    query = apply_sort(query, models.Proceso, sorts)
+    query = apply_pagination(query, pagination)
+    procesos = query.all()
+    return procesos, total
+
+def update_proceso(db: Session, proceso_id: int, proceso: schemas.ProcesoUpdate):
+    db_proceso = db.query(models.Proceso).filter(models.Proceso.id == proceso_id).first()
+    db_proceso.nombre = proceso.nombre
+    db_proceso.descripcion = proceso.descripcion
+    db_proceso.fecha_creacion = proceso.fecha_creacion
+    db_proceso.aplicacion_id = proceso.aplicacion_id
+    db.commit()
+    db.refresh(db_proceso)
+    return db_proceso
+
+def delete_proceso(db: Session, proceso_id: int):
+    db_proceso = db.query(models.Proceso).options(
+        joinedload(models.Proceso.aplicacion),
+        joinedload(models.Proceso.funcionalidades_proceso),
+    ).filter(models.Proceso.id == proceso_id).first()
+    if db_proceso:
+        db.delete(db_proceso)
+        db.commit()
+    return db_proceso

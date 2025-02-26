@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Query
 from sqlalchemy.orm import Session
 from app import crud, schemas
 from app.database import get_db
+import json
 
 router = APIRouter()
 
@@ -16,10 +17,13 @@ def read_testers_proceso(testers_proceso_id: int, db: Session = Depends(get_db))
         raise HTTPException(status_code=404, detail="TestersProceso not found")
     return testers_proceso
 
-@router.get("/", response_model=list[schemas.TestersProceso])
-def read_testers_procesos(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    testers_procesos = crud.get_testers_procesos(db=db, skip=skip, limit=limit)
-    return testers_procesos
+@router.get("/", response_model=dict)
+def read_testers_procesos(sorts: str = Query('[]'), pagination: str = Query('{}'), filters: str = Query('[]'), db: Session = Depends(get_db)):
+    filters = json.loads(filters)
+    sorts = json.loads(sorts)
+    pagination = json.loads(pagination)
+    testers_procesos, total = crud.get_testers_procesos(db, sorts=sorts, filters=filters, pagination=pagination)
+    return {"data": [schemas.TestersProceso.model_validate(testers_proceso) for testers_proceso in testers_procesos], "total": total}
 
 @router.put("/{testers_proceso_id}", response_model=schemas.TestersProceso)
 def update_testers_proceso(testers_proceso_id: int, testers_proceso: schemas.TestersProcesoUpdate, db: Session = Depends(get_db)):

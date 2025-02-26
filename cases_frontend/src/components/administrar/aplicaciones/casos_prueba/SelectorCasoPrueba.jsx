@@ -36,7 +36,7 @@ export default function SelectorCasoPrueba({
         };
 
         if (sortModel.length > 0) {
-            params.sort = JSON.stringify(sortModel);
+            params.sorts = JSON.stringify(sortModel);
         }
 
         // Construir filtros si aplicacion tiene ID

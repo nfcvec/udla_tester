@@ -1,3 +1,4 @@
+from datetime import datetime
 from pydantic import BaseModel
 from typing import List, Optional
 from typing import Dict
@@ -135,4 +136,58 @@ class CasoPrueba(CasoPruebaBase):
 
     class Config:
 
+        from_attributes = True
+
+
+class FuncionalidadesProcesoBase(BaseModel):
+    funcionalidad_id: int
+    proceso_id: int
+
+class FuncionalidadesProcesoCreate(FuncionalidadesProcesoBase):
+    pass
+
+class FuncionalidadesProcesoUpdate(FuncionalidadesProcesoBase):
+    pass
+
+class FuncionalidadesProceso(FuncionalidadesProcesoBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+
+class TestersProcesoBase(BaseModel):
+    proceso_id: int
+    tester_id: str
+
+class TestersProcesoCreate(TestersProcesoBase):
+    pass
+
+class TestersProcesoUpdate(TestersProcesoBase):
+    pass
+
+class TestersProceso(TestersProcesoBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+
+class ProcesoBase(BaseModel):
+    nombre: str
+    descripcion: str
+    fecha_creacion: datetime
+    aplicacion_id: int
+
+class ProcesoCreate(ProcesoBase):
+    pass
+
+class ProcesoUpdate(ProcesoBase):
+    pass
+
+class Proceso(ProcesoBase):
+    id: int
+    aplicacion: Aplicacion
+    funcionalidades_proceso: List[FuncionalidadesProceso] = []
+    testers_proceso: List[TestersProceso] = []
+
+    class Config:
         from_attributes = True

@@ -1,0 +1,45 @@
+pruimero agregar modelos
+
+MODELOS
+
+APLICACION
+id
+nombre
+
+FUNCIONALIDAD
+id
+nombre
+aplicacion_id FK
+
+TESTERS 
+id
+nombre
+
+FUNCIONALIDADES_PROCESO
+id
+id_funcionalidad
+id_proceso
+
+TESTERS_PROCESO
+id
+proceso_id
+tester_id
+
+PROCESO
+id
+nombre
+descripcion
+fecha creacion
+aplicación_id
+Aplicacion [] FK
+Testers [] FK
+Funcionalidades [] FK
+
+luego generar schemas con copilot
+
+generar cruds con copilot
+
+generar routes para cada tabla con copilot basandose en algun route que ya exista
+
+
+

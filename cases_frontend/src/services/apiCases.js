@@ -45,6 +45,24 @@ const apiCases = {
   updateCasoPrueba: (id, data) => axios.put(`${API_BASE_URL}/caso_prueba/${id}`, data),
   deleteCasoPrueba: (id) => axios.delete(`${API_BASE_URL}/caso_prueba/${id}`),
 
+  createProceso: (data) => axios.post(`${API_BASE_URL}/proceso/`, data),
+  readProcesos: (params) => axios.get(`${API_BASE_URL}/proceso/`, { params }),
+  readProceso: (id) => axios.get(`${API_BASE_URL}/proceso/${id}`),
+  updateProceso: (id, data) => axios.put(`${API_BASE_URL}/proceso/${id}`, data),
+  deleteProceso: (id) => axios.delete(`${API_BASE_URL}/proceso/${id}`),
+
+  createTestersProceso: (data) => axios.post(`${API_BASE_URL}/testers_proceso/`, data),
+  readTestersProcesos: (params) => axios.get(`${API_BASE_URL}/testers_proceso/`, { params }),
+  readTestersProceso: (id) => axios.get(`${API_BASE_URL}/testers_proceso/${id}`),
+  updateTestersProceso: (id, data) => axios.put(`${API_BASE_URL}/testers_proceso/${id}`, data),
+  deleteTestersProceso: (id) => axios.delete(`${API_BASE_URL}/testers_proceso/${id}`),
+
+  createFuncionalidadesProceso: (data) => axios.post(`${API_BASE_URL}/funcionalidades_proceso/`, data),
+  readFuncionalidadesProcesos: (params) => axios.get(`${API_BASE_URL}/funcionalidades_proceso/`, { params }),
+  readFuncionalidadesProceso: (id) => axios.get(`${API_BASE_URL}/funcionalidades_proceso/${id}`),
+  updateFuncionalidadesProceso: (id, data) => axios.put(`${API_BASE_URL}/funcionalidades_proceso/${id}`, data),
+  deleteFuncionalidadesProceso: (id) => axios.delete(`${API_BASE_URL}/funcionalidades_proceso/${id}`),
+
   readRoot: () => axios.get(`${API_BASE_URL}/`)
 };
 

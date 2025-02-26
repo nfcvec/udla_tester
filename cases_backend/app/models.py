@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Text
+from sqlalchemy import Column, Integer, String, ForeignKey, Text, DateTime
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -14,6 +14,7 @@ class Aplicacion(Base):
     tipos_prueba = relationship("TipoPrueba", back_populates="aplicacion")
     tipos_usuario = relationship("TipoUsuario", back_populates="aplicacion")
     casos_prueba = relationship("CasoPrueba", back_populates="aplicacion")
+    procesos = relationship("Proceso", back_populates="aplicacion")
 
 class Pantalla(Base):
     __tablename__ = 'pantalla'
@@ -32,6 +33,7 @@ class Funcionalidad(Base):
     aplicacion_id = Column(Integer, ForeignKey('aplicacion.id'))
 
     aplicacion = relationship("Aplicacion", back_populates="funcionalidades")
+    funcionalidades_proceso = relationship("FuncionalidadesProceso", back_populates="funcionalidad")
 
 class SO(Base):
     __tablename__ = 'so'
@@ -79,3 +81,36 @@ class CasoPrueba(Base):
     pantalla = relationship("Pantalla")
     tipo_usuario = relationship("TipoUsuario")
     
+
+
+class FuncionalidadesProceso(Base):
+    __tablename__ = 'funcionalidades_proceso'
+    
+    id = Column(Integer, primary_key=True, index=True)
+    funcionalidad_id = Column(Integer, ForeignKey('funcionalidad.id'))
+    proceso_id = Column(Integer, ForeignKey('proceso.id'))
+
+    funcionalidad = relationship("Funcionalidad", back_populates="funcionalidades_proceso")
+    proceso = relationship("Proceso", back_populates="funcionalidades_proceso")
+
+class TestersProceso(Base):
+    __tablename__ = 'testers_proceso'
+    
+    id = Column(Integer, primary_key=True, index=True)
+    proceso_id = Column(Integer, ForeignKey('proceso.id'))
+    tester_id = Column(String, index=True)
+
+    proceso = relationship("Proceso", back_populates="testers_proceso")
+
+class Proceso(Base):
+    __tablename__ = 'proceso'
+    
+    id = Column(Integer, primary_key=True, index=True)
+    nombre = Column(String, index=True)
+    descripcion = Column(Text)
+    fecha_creacion = Column(DateTime)
+    aplicacion_id = Column(Integer, ForeignKey('aplicacion.id'))
+
+    aplicacion = relationship("Aplicacion", back_populates="procesos")
+    funcionalidades_proceso = relationship("FuncionalidadesProceso", back_populates="proceso")
+    testers_proceso = relationship("TestersProceso", back_populates="proceso")

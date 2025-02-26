@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Query
 from sqlalchemy.orm import Session
 from app import crud, schemas
 from app.database import get_db
+import json
 
 router = APIRouter()
 
@@ -16,10 +17,13 @@ def read_funcionalidades_proceso(funcionalidades_proceso_id: int, db: Session = 
         raise HTTPException(status_code=404, detail="FuncionalidadesProceso not found")
     return funcionalidades_proceso
 
-@router.get("/", response_model=list[schemas.FuncionalidadesProceso])
-def read_funcionalidades_procesos(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    funcionalidades_procesos = crud.get_funcionalidades_procesos(db=db, skip=skip, limit=limit)
-    return funcionalidades_procesos
+@router.get("/", response_model=dict)
+def read_funcionalidades_procesos(sorts: str = Query('[]'), pagination: str = Query('{}'), filters: str = Query('[]'), db: Session = Depends(get_db)):
+    filters = json.loads(filters)
+    sorts = json.loads(sorts)
+    pagination = json.loads(pagination)
+    funcionalidades_procesos, total = crud.get_funcionalidades_procesos(db, sorts=sorts, filters=filters, pagination=pagination)
+    return {"data": [schemas.FuncionalidadesProceso.model_validate(funcionalidades_proceso) for funcionalidades_proceso in funcionalidades_procesos], "total": total}
 
 @router.put("/{funcionalidades_proceso_id}", response_model=schemas.FuncionalidadesProceso)
 def update_funcionalidades_proceso(funcionalidades_proceso_id: int, funcionalidades_proceso: schemas.FuncionalidadesProcesoUpdate, db: Session = Depends(get_db)):

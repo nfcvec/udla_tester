@@ -11,12 +11,11 @@ def create_so(so: schemas.SOCreate, db: Session = Depends(get_db)):
     return crud.create_so(db=db, so=so)
 
 @router.get("/", response_model=dict)
-def read_sos(skip: int = 0, limit: int = 10, sort_by: str = 'id', sort_order: str = 'asc', filters: str = Query('[]'), db: Session = Depends(get_db)):
-    if filters:
-        filters = json.loads(filters)
-    else:
-        filters = []
-    sos, total = crud.get_sos(db, skip=skip, limit=limit, sort_by=sort_by, sort_order=sort_order, filters=filters)
+def read_sos(sorts: str = Query('[]'), pagination: str = Query('{}'), filters: str = Query('[]'), db: Session = Depends(get_db)):
+    filters = json.loads(filters)
+    sorts = json.loads(sorts)
+    pagination = json.loads(pagination)
+    sos, total = crud.get_sos(db, sorts=sorts, filters=filters, pagination=pagination)
     return {"data": [schemas.SO.model_validate(so) for so in sos], "total": total}
 
 @router.get("/{so_id}", response_model=schemas.SO)

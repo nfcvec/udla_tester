@@ -1,3 +1,4 @@
+import json
 from fastapi import APIRouter, HTTPException, Depends, Query
 from sqlalchemy.orm import Session
 from app import crud, schemas
@@ -21,7 +22,6 @@ def read_procesos(sorts: str = Query('[]'), pagination: str = Query('{}'), filte
     filters = json.loads(filters)
     sorts = json.loads(sorts)
     pagination = json.loads(pagination)
-    
     procesos, total = crud.get_procesos(db, sorts=sorts, filters=filters, pagination=pagination)
     return {"data": [schemas.Proceso.model_validate(proceso) for proceso in procesos], "total": total}
 

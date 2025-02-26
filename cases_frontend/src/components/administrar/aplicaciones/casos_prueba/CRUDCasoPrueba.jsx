@@ -10,13 +10,13 @@ const CRUDCasoPrueba = ({ aplicacion }) => {
 
     const [data, setData] = useState([]);
     const [total, setTotal] = useState(0);
-    
-  const [sortModel, setSortModel] = useState([]);
-  const [filterModel, setFilterModel] = useState({});
-  const [paginationModel, setPaginationModel] = useState({
-    pageSize: 5,
-    page: 0,
-  });
+
+    const [sortModel, setSortModel] = useState([]);
+    const [filterModel, setFilterModel] = useState({});
+    const [paginationModel, setPaginationModel] = useState({
+        pageSize: 5,
+        page: 0,
+    });
     const [formData, setFormData] = useState({
         id: "",
         paso_a_paso: "",
@@ -53,13 +53,11 @@ const CRUDCasoPrueba = ({ aplicacion }) => {
 
     const fetchData = async () => {
         const params = {
-            limit: paginationModel.pageSize,
-            skip: paginationModel.page * paginationModel.pageSize,
+            pagination: JSON.stringify(paginationModel),
         };
 
         if (sortModel.length > 0) {
-            params.sort_by = sortModel[0].field;
-            params.sort_order = sortModel[0].sort;
+            params.sorts = JSON.stringify(sortModel);
         }
 
         const filters = [];
@@ -124,7 +122,7 @@ const CRUDCasoPrueba = ({ aplicacion }) => {
                 setFilterModel,
                 paginationModel,
                 setPaginationModel,
-                
+
             }}
         >
             <DataGridCasoPrueba />

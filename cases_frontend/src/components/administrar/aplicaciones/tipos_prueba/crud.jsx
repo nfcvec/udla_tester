@@ -34,21 +34,45 @@ const CRUDTiposPrueba = ({aplicacion}) => {
 
   const fetchData = async () => {
     const params = {
-      limit: paginationModel.pageSize,
-      skip: paginationModel.page * paginationModel.pageSize,
-    };
+      pagination: JSON.stringify(paginationModel),
+  };
 
-    if (sortModel.length > 0) {
-      params.sort_by = sortModel[0].field;
-      params.sort_order = sortModel[0].sort;
-    }
+  if (sortModel.length > 0) {
+      params.sorts = JSON.stringify(sortModel);
+  }
 
-    if (filterModel.items && filterModel.items.length > 0) {
-      filterModel.items.forEach((filter) => {
-        params.filter_column = filter.field;
-        params.filter_value = filter.value;
+  const filters = [];
+
+  if (aplicacion.id) {
+      filters.push({
+          field: "aplicacion_id",
+          operator: "equals",
+          value: aplicacion.id,
       });
-    }
+  }
+
+
+  if (filterModel.items) {
+      filterModel.items.forEach((item) => {
+          filters.push({
+              field: item.field,
+              operator: item.operator,
+              value: item.value,
+          });
+      });
+  }
+
+  if (filters.length > 0) {
+      params.filters = JSON.stringify(filters);
+  }
+
+  if (paginationModel) {
+      params.pagination = JSON.stringify(paginationModel);
+  }
+
+  if (sortModel) {
+      params.sort = JSON.stringify(sortModel);
+  }
 
     try {
       const response = await apiCases.readTiposPrueba(params);

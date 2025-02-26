@@ -13,19 +13,11 @@ def create_pantalla(pantalla: schemas.PantallaCreate, db: Session = Depends(get_
     return crud.create_pantalla(db=db, pantalla=pantalla)
 
 @router.get("/", response_model=dict)
-def read_pantallas(
-    skip: int = 0,
-    limit: int = 10,
-    sort_by: str = 'id',
-    sort_order: str = 'asc',
-    filters: str = Query('[]'),
-    db: Session = Depends(get_db)
-):
-    if filters:
-        filters = json.loads(filters)
-    else:
-        filters = []
-    pantallas, total = crud.get_pantallas(db, skip=skip, limit=limit, sort_by=sort_by, sort_order=sort_order, filters=filters)
+def read_pantallas(sorts: str = Query('[]'), pagination: str = Query('{}'), filters: str = Query('[]'), db: Session = Depends(get_db)):
+    filters = json.loads(filters)
+    sorts = json.loads(sorts)
+    pagination = json.loads(pagination)
+    pantallas, total = crud.get_pantallas(db, sorts=sorts, filters=filters, pagination=pagination)
     return {"data": [schemas.Pantalla.model_validate(pantalla) for pantalla in pantallas], "total": total}
 
 @router.get("/{pantalla_id}", response_model=schemas.Pantalla)
