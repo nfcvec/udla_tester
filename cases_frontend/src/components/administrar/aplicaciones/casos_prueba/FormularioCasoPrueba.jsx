@@ -190,7 +190,7 @@ const FormularioCasoPrueba = () => {
                             handleKeystroke(e, e.target.value, "so_id", apiCases.createSo, sos, setSos)
                         }
                         renderInput={(params) => (
-                            <TextField {...params} label="SO" />
+                            <TextField {...params} label="Sis. Op." />
                         )}
                     />
                     <Autocomplete

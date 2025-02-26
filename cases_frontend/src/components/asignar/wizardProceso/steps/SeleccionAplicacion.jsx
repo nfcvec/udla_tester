@@ -1,12 +1,11 @@
 import { Box, FormLabel, CircularProgress, TextField } from '@mui/material';
 import React, { useState, useEffect } from 'react';
 import { Autocomplete } from '@mui/material';
-import { useAlert } from '../../../contexts/AlertContext';
-import { useAsignar } from '../context/AsignarContext';
-import apiCases from '../../../services/apiCases';
-
+import { useProceso } from '../../context/ProcesoContext';
+import { useAlert } from '../../../../contexts/AlertContext';
+import apiCases from '../../../../services/apiCases';
 export default function SeleccionAplicacion() {
-  const { asignacion, setAsignacion } = useAsignar();
+  const { proceso, setProceso } = useProceso();
   const [data, setData] = useState([]);
   const [search, setSearch] = useState('');
   const [open, setOpen] = useState(false);
@@ -59,9 +58,9 @@ export default function SeleccionAplicacion() {
         onClose={handleClose}
         loading={loading}
         getOptionLabel={(option) => option.nombre}
-        value={asignacion.aplicacion}
+        value={proceso.aplicacion}
         onChange={(event, newValue) => {
-          setAsignacion((prev) => ({ ...prev, aplicacion: newValue }));
+          setProceso((prev) => ({ ...prev, aplicacion: newValue }));
         }}
         filterOptions={(x) => x}
         renderInput={(params) => (

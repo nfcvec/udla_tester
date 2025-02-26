@@ -40,7 +40,7 @@ const DataGridCasoPrueba = () => {
     { field: 'id', headerName: 'ID', width: 90 },
     { field: 'paso_a_paso', headerName: 'Paso a Paso', width: 150},
     { field: 'funcionalidad', headerName: 'Funcionalidad', width: 150, valueGetter: (params) => params.nombre},
-    { field: 'so', headerName: 'SO', width: 150, valueGetter: (params) => params.nombre },
+    { field: 'so', headerName: 'Sis. Op.', width: 150, valueGetter: (params) => params.nombre },
     { field: 'tipo_prueba', headerName: 'Tipo Prueba', width: 150, valueGetter: (params) => params.nombre },
     { field: 'pantalla', headerName: 'Pantalla', width: 150, valueGetter: (params) => params.nombre },
     { field: 'tipo_usuario', headerName: 'Tipo Usuario', width: 150, valueGetter: (params) => params.nombre },

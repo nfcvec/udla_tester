@@ -4,15 +4,15 @@ import React, { useEffect, useState } from 'react';
 import { Box, TextField, Typography } from '@mui/material';
 import { useMsal } from "@azure/msal-react";
 import { InteractionStatus, InteractionRequiredAuthError } from "@azure/msal-browser";
-import { loginRequest } from "../../../authConfig";
-import { callMsGraphUsers } from '../../../utils/MSGraphUsersCall';
-import { useAsignar } from '../context/AsignarContext';
+import { useProceso } from '../../context/ProcesoContext';
+import { loginRequest } from '../../../../authConfig';
+import { callMsGraphUsers } from '../../../../utils/MSGraphUsersCall';
 
 export default function SeleccionTesters() {
   const { instance, inProgress } = useMsal();
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState('');
-  const { asignacion, setAsignacion } = useAsignar();
+  const { proceso, setProceso } = useProceso();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,16 +36,16 @@ export default function SeleccionTesters() {
 
   return <>
     <Box gap={2} py={2}>
-      <code>{JSON.stringify(asignacion)}</code>
+      <code>{JSON.stringify(proceso)}</code>
       <FormLabel>Selecciona los testers</FormLabel>
       <Autocomplete
         multiple
         id="tags-outlined"
         options={users}
         getOptionLabel={(option) => option.displayName}
-        value={asignacion.testers}
+        value={proceso.testers}
         onChange={(event, newValue) => {
-          setAsignacion((prev) => ({ ...prev, testers: newValue }));
+          setProceso((prev) => ({ ...prev, testers: newValue }));
         }}
         filterSelectedOptions
         renderInput={(params) => (

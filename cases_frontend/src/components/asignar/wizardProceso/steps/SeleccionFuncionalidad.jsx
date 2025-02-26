@@ -2,15 +2,15 @@ import { Box, FormLabel, Typography, CircularProgress } from '@mui/material';
 import React from 'react';
 import { useState, useEffect } from 'react';
 import { Autocomplete, TextField } from '@mui/material';
-import { useAlert } from '../../../contexts/AlertContext';
-import { useAsignar } from '../context/AsignarContext';
-import apiCases from '../../../services/apiCases';
+import { useProceso } from '../../context/ProcesoContext';
+import { useAlert } from '../../../../contexts/AlertContext';
+import apiCases from '../../../../services/apiCases';
 
 export default function SeleccionFuncionalidad() {
-  const { asignacion, setAsignacion } = useAsignar();
+  const { proceso, setProceso } = useProceso();
 
   const handleSelect = (funcionalidades) => {
-    setAsignacion((prev) => ({ ...prev, funcionalidades }));
+    setProceso((prev) => ({ ...prev, funcionalidades }));
   };
 
   const [data, setData] = useState([]);
@@ -35,16 +35,16 @@ export default function SeleccionFuncionalidad() {
       pagination: JSON.stringify({
         pageSize: -1,
         page: 0,
-       }),
+      }),
     };
     // Always filter by aplicacion.id if present
     let filters = [];
 
-    if (asignacion.aplicacion?.id) {
+    if (proceso.aplicacion?.id) {
       filters.push({
         field: 'aplicacion_id',
         operator: 'equals',
-        value: asignacion.aplicacion.id,
+        value: proceso.aplicacion.id,
       });
     }
 
@@ -81,7 +81,7 @@ export default function SeleccionFuncionalidad() {
     setSearch('');
     handleClose();
   }
-  , [asignacion]);
+    , [proceso]);
 
   return <>
     <Box gap={2} py={2}>
@@ -94,10 +94,10 @@ export default function SeleccionFuncionalidad() {
         onOpen={handleOpen}
         onClose={handleClose}
         loading={loading}
-        value={asignacion.funcionalidades}
+        value={proceso.funcionalidades}
         getOptionLabel={(option) => option.nombre}
         onChange={(event, newValue) => {
-          setAsignacion((prev) => ({ ...prev, funcionalidades: newValue }));
+          setProceso((prev) => ({ ...prev, funcionalidades: newValue }));
         }}
         filterOptions={(x) => x}
         renderInput={(params) => (

@@ -5,19 +5,19 @@ import Step from '@mui/material/Step';
 import StepButton from '@mui/material/StepButton';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import DatosAsignacion from './steps/DatosAsignacion';
+import DatosProceso from './steps/DatosProceso';
 import SeleccionAplicacion from './steps/SeleccionAplicacion';
 import SeleccionTesters from './steps/SeleccionTesters';
 import SeleccionFuncionalidad from './steps/SeleccionFuncionalidad';
-import { useAsignar } from './context/AsignarContext';
-import apiCases from '../../services/apiCases';
-import { useAlert } from '../../contexts/AlertContext';
+import { useProceso } from '../context/ProcesoContext';
+import apiCases from '../../../services/apiCases';
+import { useAlert } from '../../../contexts/AlertContext';
 
-export default function AsignarStepper({ setShowStepper }) {
+export default function ProcesoStepper({ setShowStepper }) {
   const [steps, setSteps] = React.useState([
     {
       label: 'Da un nombre a la asignación',
-      component: <DatosAsignacion />,
+      component: <DatosProceso />,
       isComplete: false,
       canProceed: false,
     },
@@ -51,7 +51,7 @@ export default function AsignarStepper({ setShowStepper }) {
 
   return (
     <>
-      <AsignarContent
+      <StepperContent
         steps={steps}
         setSteps={setSteps}
         activeStep={activeStep}
@@ -63,49 +63,49 @@ export default function AsignarStepper({ setShowStepper }) {
   );
 }
 
-function AsignarContent({ steps, setSteps, activeStep, setActiveStep, anchorEl, setShowStepper }) {
-  const { asignacion } = useAsignar();
+function StepperContent({ steps, setSteps, activeStep, setActiveStep, anchorEl, setShowStepper }) {
+  const { proceso } = useProceso();
   const showAlert = useAlert();
 
   useEffect(() => {
-    if (activeStep === 0 && asignacion.nombre) {
+    if (activeStep === 0 && proceso.nombre) {
       setSteps((prevSteps) => {
         const newSteps = [...prevSteps];
         newSteps[0].canProceed = true;
         return newSteps;
       });
     }
-  }, [asignacion.nombre, activeStep]);
+  }, [proceso.nombre, activeStep]);
 
   useEffect(() => {
-    if (activeStep === 1 && asignacion.aplicacion) {
+    if (activeStep === 1 && proceso.aplicacion) {
       setSteps((prevSteps) => {
         const newSteps = [...prevSteps];
         newSteps[1].canProceed = true;
         return newSteps;
       });
     }
-  }, [asignacion.aplicacion, activeStep]);
+  }, [proceso.aplicacion, activeStep]);
 
   useEffect(() => {
-    if (activeStep === 2 && asignacion.funcionalidades.length > 0) {
+    if (activeStep === 2 && proceso.funcionalidades.length > 0) {
       setSteps((prevSteps) => {
         const newSteps = [...prevSteps];
         newSteps[2].canProceed = true;
         return newSteps;
       });
     }
-  }, [asignacion.funcionalidades, activeStep]);
+  }, [proceso.funcionalidades, activeStep]);
 
   useEffect(() => {
-    if (activeStep === 3 && asignacion.testers.length > 0) {
+    if (activeStep === 3 && proceso.testers.length > 0) {
       setSteps((prevSteps) => {
         const newSteps = [...prevSteps];
         newSteps[3].canProceed = true;
         return newSteps;
       });
     }
-  }, [asignacion.testers, activeStep]);
+  }, [proceso.testers, activeStep]);
 
   const totalSteps = () => steps.length;
 
@@ -122,16 +122,16 @@ function AsignarContent({ steps, setSteps, activeStep, setActiveStep, anchorEl, 
     //   "fecha_creacion": "2025-02-26T13:59:56.970Z",
     //   "aplicacion_id": 0
     // }
-    let proceso = {
-      nombre: asignacion.nombre,
-      descripcion: asignacion.descripcion,
+    let _proceso = {
+      nombre: proceso.nombre,
+      descripcion: proceso.descripcion,
       fecha_creacion: new Date().toISOString(),
-      aplicacion_id: asignacion.aplicacion.id,
+      aplicacion_id: proceso.aplicacion.id,
     };
 
     try {
-      const response = await apiCases.createProceso(proceso);
-      proceso.id = response.data.id;
+      const response = await apiCases.createProceso(_proceso);
+      _proceso.id = response.data.id;
     }
     catch (error) {
       showAlert("Error al crear el proceso", "error");
@@ -145,10 +145,10 @@ function AsignarContent({ steps, setSteps, activeStep, setActiveStep, anchorEl, 
     //   "proceso_id": 0
     // }
 
-    const funcionalidades = asignacion.funcionalidades.map((funcionalidad) => {
+    const funcionalidades = proceso.funcionalidades.map((funcionalidad) => {
       return {
         funcionalidad_id: funcionalidad.id,
-        proceso_id: proceso.id,
+        proceso_id: _proceso.id,
       };
     });
 
@@ -170,10 +170,10 @@ function AsignarContent({ steps, setSteps, activeStep, setActiveStep, anchorEl, 
     //   "proceso_id": 0
     // }
 
-    const testers = asignacion.testers.map((tester) => {
+    const testers = proceso.testers.map((tester) => {
       return {
         tester_id: tester.id,
-        proceso_id: proceso.id,
+        proceso_id: _proceso.id,
       };
     });
 
