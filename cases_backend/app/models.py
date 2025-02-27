@@ -80,8 +80,6 @@ class CasoPrueba(Base):
     tipo_prueba = relationship("TipoPrueba")
     pantalla = relationship("Pantalla")
     tipo_usuario = relationship("TipoUsuario")
-    
-
 
 class FuncionalidadesProceso(Base):
     __tablename__ = 'funcionalidades_proceso'
@@ -102,6 +100,17 @@ class TestersProceso(Base):
 
     proceso = relationship("Proceso", back_populates="testers_proceso")
 
+class Asignacion(Base):
+    __tablename__ = 'asignacion'
+    
+    id = Column(Integer, primary_key=True, index=True)
+    proceso_id = Column(Integer, ForeignKey('proceso.id'))
+    tester_id = Column(String, index=True)
+    caso_prueba_id = Column(Integer, ForeignKey('caso_prueba.id'))
+
+    proceso = relationship("Proceso", back_populates="asignaciones")
+    caso_prueba = relationship("CasoPrueba")
+
 class Proceso(Base):
     __tablename__ = 'proceso'
     
@@ -114,3 +123,4 @@ class Proceso(Base):
     aplicacion = relationship("Aplicacion", back_populates="procesos")
     funcionalidades_proceso = relationship("FuncionalidadesProceso", back_populates="proceso")
     testers_proceso = relationship("TestersProceso", back_populates="proceso")
+    asignaciones = relationship("Asignacion", back_populates="proceso")

@@ -171,6 +171,24 @@ class TestersProceso(TestersProcesoBase):
     class Config:
         from_attributes = True
 
+class AsignacionBase(BaseModel):
+    proceso_id: int
+    tester_id: str
+    caso_prueba_id: int
+
+class AsignacionCreate(AsignacionBase):
+    pass
+
+class AsignacionUpdate(AsignacionBase):
+    pass
+
+class Asignacion(AsignacionBase):
+    id: int
+    caso_prueba: CasoPrueba
+    
+    class Config:
+        from_attributes = True
+
 class ProcesoBase(BaseModel):
     nombre: str
     descripcion: str

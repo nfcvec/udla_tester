@@ -542,3 +542,38 @@ def delete_proceso(db: Session, proceso_id: int):
         db.delete(db_proceso)
         db.commit()
     return db_proceso
+
+def create_asignacion(db: Session, asignacion: schemas.AsignacionCreate):
+    db_asignacion = models.Asignacion(**asignacion.model_dump())
+    db.add(db_asignacion)
+    db.commit()
+    db.refresh(db_asignacion)
+    return db_asignacion
+
+def get_asignacion(db: Session, asignacion_id: int):
+    return db.query(models.Asignacion).filter(models.Asignacion.id == asignacion_id).first()
+
+def get_asignaciones(db: Session, filters: list = [], sorts: list = [], pagination: dict = {}):
+    query = db.query(models.Asignacion)
+    query = apply_filters(query, models.Asignacion, filters)
+    total = query.count()
+    query = apply_sort(query, models.Asignacion, sorts)
+    query = apply_pagination(query, pagination)
+    asignaciones = query.all()
+    return asignaciones, total
+
+def update_asignacion(db: Session, asignacion_id: int, asignacion: schemas.AsignacionUpdate):
+    db_asignacion = db.query(models.Asignacion).filter(models.Asignacion.id == asignacion_id).first()
+    db_asignacion.proceso_id = asignacion.proceso_id
+    db_asignacion.tester_id = asignacion.tester_id
+    db_asignacion.caso_prueba_id = asignacion.caso_prueba_id
+    db.commit()
+    db.refresh(db_asignacion)
+    return db_asignacion
+
+def delete_asignacion(db: Session, asignacion_id: int):
+    db_asignacion = db.query(models.Asignacion).filter(models.Asignacion.id == asignacion_id).first()
+    if db_asignacion:
+        db.delete(db_asignacion)
+        db.commit()
+    return db_asignacion

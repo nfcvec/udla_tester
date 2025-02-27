@@ -17,7 +17,7 @@ app.add_middleware(
 # Create the database tables
 Base.metadata.create_all(bind=engine)
 
-# Incluir el router principal
+# Incluir el router principal.ve    
 app.include_router(router)
 
 @app.get("/")

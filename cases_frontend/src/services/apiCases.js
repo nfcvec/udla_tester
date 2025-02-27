@@ -63,6 +63,13 @@ const apiCases = {
   updateFuncionalidadesProceso: (id, data) => axios.put(`${API_BASE_URL}/funcionalidades_proceso/${id}`, data),
   deleteFuncionalidadesProceso: (id) => axios.delete(`${API_BASE_URL}/funcionalidades_proceso/${id}`),
 
+  createAsignacion: (data) => axios.post(`${API_BASE_URL}/asignacion/`, data),
+  readAsignaciones: (params) => axios.get(`${API_BASE_URL}/asignacion/`, { params }),
+  readAsignacion: (id) => axios.get(`${API_BASE_URL}/asignacion/${id}`),
+  updateAsignacion: (id, data) => axios.put(`${API_BASE_URL}/asignacion/${id}`, data),
+  deleteAsignacion: (id) => axios.delete(`${API_BASE_URL}/asignacion/${id}`),
+
+  
   readRoot: () => axios.get(`${API_BASE_URL}/`)
 };
 

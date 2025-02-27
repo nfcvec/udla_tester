@@ -24,10 +24,10 @@ export default function SelectorCasoPrueba({
 
     const [selectionModel, setSelectionModel] = useState(
         isMultiple
-            ? (casosPrueba || []).map((cp) => cp.id)
+            ? Array.isArray(casosPrueba) ? casosPrueba.map((cp) => cp.id) : []
             : casoPrueba
-                ? [casoPrueba.id]
-                : []
+            ? [casoPrueba.id]
+            : []
     );
 
     const fetchData = async () => {
@@ -114,7 +114,7 @@ export default function SelectorCasoPrueba({
             getRowId={(row) => row.id}
             checkboxSelection={isMultiple}
             disableRowSelectionOnClick={!isMultiple}
-            rowSelection={isMultiple ? 'multiple' : 'single'}
+            rowSelection={isMultiple}
             rowSelectionModel={selectionModel}
             onRowSelectionModelChange={(newSelection) => {
                 setSelectionModel(newSelection);
