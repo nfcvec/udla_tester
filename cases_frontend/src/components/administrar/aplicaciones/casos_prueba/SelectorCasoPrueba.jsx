@@ -18,10 +18,9 @@ export default function SelectorCasoPrueba({
     const [sortModel, setSortModel] = useState([]);
     const [filterModel, setFilterModel] = useState({ items: [] });
     const [paginationModel, setPaginationModel] = useState({
-        pageSize: 5,
+        pageSize: -1,
         page: 0,
     });
-
     const [selectionModel, setSelectionModel] = useState(
         isMultiple
             ? Array.isArray(casosPrueba) ? casosPrueba.map((cp) => cp.id) : []
@@ -101,11 +100,6 @@ export default function SelectorCasoPrueba({
         <DataGrid
             rows={data}
             columns={columns}
-            pageSizeOptions={[5]}
-            paginationModel={paginationModel}
-            onPaginationModelChange={setPaginationModel}
-            rowCount={total}
-            paginationMode="server"
             sortingMode="server"
             sortModel={sortModel}
             onSortModelChange={handleSortModelChange}

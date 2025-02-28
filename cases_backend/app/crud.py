@@ -63,6 +63,8 @@ def apply_filters(query, model, filters):
                 query = query.filter(getattr(model, field) != '')
             elif operator == 'isAnyOf':
                 query = query.filter(getattr(model, field).in_(value))
+            elif operator == 'isNoneOf':
+                query = query.filter(~getattr(model, field).in_(value))
     
     return query
 
@@ -572,7 +574,9 @@ def update_asignacion(db: Session, asignacion_id: int, asignacion: schemas.Asign
     return db_asignacion
 
 def delete_asignacion(db: Session, asignacion_id: int):
-    db_asignacion = db.query(models.Asignacion).filter(models.Asignacion.id == asignacion_id).first()
+    db_asignacion = db.query(models.Asignacion).options(
+        joinedload(models.Asignacion.caso_prueba)
+    ).filter(models.Asignacion.id == asignacion_id).first()
     if db_asignacion:
         db.delete(db_asignacion)
         db.commit()

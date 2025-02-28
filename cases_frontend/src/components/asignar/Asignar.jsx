@@ -3,9 +3,11 @@ import Button from '@mui/material/Button';
 import SelectorProcesos from '../administrar/procesos/SelectorProcesos';
 import ProcesoStepper from './wizardProceso/ProcesoStepper';
 import { ProcesoProvider, useProceso } from './context/ProcesoContext';
-import { Box, FormLabel, TextField, Typography } from '@mui/material';
+import { Box, FormLabel, IconButton, TextField, Typography } from '@mui/material';
 import { callMsGraphUserDetails } from '../../utils/MsGraphUserDetails';
 import EnviarAsignaciones from './EnviarAsignaciones';
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+
 
 export default function Asignar() {
   return (
@@ -29,14 +31,19 @@ export const AsignarContent = () => {
 
   return (
     <>
+      <Box sx={{ display: "flex", alignItems: "center" }}>
+        <IconButton disabled={!proceso.nombre} onClick={() => setProceso({})}>
+          <ArrowBackIcon />
+        </IconButton>
+        <Typography variant="h6" sx={{ ml: 1 }}>
+          {proceso.nombre || "Administrar procesos"}
+        </Typography>
+      </Box>
       {proceso.nombre && (
         <EnviarAsignaciones />
       )}
       {!proceso.nombre && (
         <>
-          <Typography variant="h6" sx={{ ml: 1 }}>
-            {proceso.nombre || "Procesos de prueba"}
-          </Typography>
           <CRUDProceso
             showStepper={showStepper}
             setShowStepper={setShowStepper}
