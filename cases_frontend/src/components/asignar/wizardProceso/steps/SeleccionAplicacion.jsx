@@ -4,8 +4,11 @@ import { Autocomplete } from '@mui/material';
 import { useProceso } from '../../context/ProcesoContext';
 import { useAlert } from '../../../../contexts/AlertContext';
 import apiCases from '../../../../services/apiCases';
-export default function SeleccionAplicacion() {
-  const { proceso, setProceso } = useProceso();
+
+export default function SeleccionAplicacion({
+  selectedProceso,
+  setSelectedProceso,
+}) {
   const [data, setData] = useState([]);
   const [search, setSearch] = useState('');
   const [open, setOpen] = useState(false);
@@ -58,9 +61,9 @@ export default function SeleccionAplicacion() {
         onClose={handleClose}
         loading={loading}
         getOptionLabel={(option) => option.nombre}
-        value={proceso.aplicacion}
+        value={selectedProceso?.aplicacion}
         onChange={(event, newValue) => {
-          setProceso((prev) => ({ ...prev, aplicacion: newValue }));
+          setSelectedProceso((prev) => ({ ...prev, aplicacion: newValue }));
         }}
         filterOptions={(x) => x}
         renderInput={(params) => (

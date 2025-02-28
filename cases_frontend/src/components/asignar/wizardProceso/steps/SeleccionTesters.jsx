@@ -8,11 +8,13 @@ import { useProceso } from '../../context/ProcesoContext';
 import { loginRequest } from '../../../../authConfig';
 import { callMsGraphUsers } from '../../../../utils/MSGraphUsersCall';
 
-export default function SeleccionTesters() {
+export default function SeleccionTesters({
+  selectedProceso,
+  setSelectedProceso,
+}) {
   const { instance, inProgress } = useMsal();
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState('');
-  const { proceso, setProceso } = useProceso();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,16 +38,16 @@ export default function SeleccionTesters() {
 
   return <>
     <Box gap={2} py={2}>
-      <code>{JSON.stringify(proceso)}</code>
+      <code>{JSON.stringify(selectedProceso)}</code>
       <FormLabel>Selecciona los testers</FormLabel>
       <Autocomplete
         multiple
         id="tags-outlined"
         options={users}
         getOptionLabel={(option) => option.displayName}
-        value={proceso.testers}
+        value={selectedProceso?.testers}
         onChange={(event, newValue) => {
-          setProceso((prev) => ({ ...prev, testers: newValue }));
+          setSelectedProceso((prev) => ({ ...prev, testers: newValue }));
         }}
         filterSelectedOptions
         renderInput={(params) => (

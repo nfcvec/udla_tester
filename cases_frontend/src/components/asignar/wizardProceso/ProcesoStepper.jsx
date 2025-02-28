@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
@@ -14,28 +14,29 @@ import apiCases from '../../../services/apiCases';
 import { useAlert } from '../../../contexts/AlertContext';
 
 export default function ProcesoStepper({ setShowStepper }) {
-  const [steps, setSteps] = React.useState([
+  const [selectedProceso, setSelectedProceso] = useState({});
+  const [steps, setSteps] = useState([
     {
       label: 'Da un nombre a la asignación',
-      component: <DatosProceso />,
+      component: <DatosProceso selectedProceso={selectedProceso} setSelectedProceso={setSelectedProceso} />,
       isComplete: false,
       canProceed: false,
     },
     {
       label: 'Selecciona una aplicación',
-      component: <SeleccionAplicacion />,
+      component: <SeleccionAplicacion selectedProceso={selectedProceso} setSelectedProceso={setSelectedProceso} />,
       isComplete: false,
       canProceed: false,
     },
     {
       label: 'Selecciona las funcionalidades a probar',
-      component: <SeleccionFuncionalidad />,
+      component: <SeleccionFuncionalidad selectedProceso={selectedProceso} setSelectedProceso={setSelectedProceso} />,
       isComplete: false,
       canProceed: false,
     },
     {
       label: 'Selecciona los testers',
-      component: <SeleccionTesters />,
+      component: <SeleccionTesters selectedProceso={selectedProceso} setSelectedProceso={setSelectedProceso} />,
       isComplete: false,
       canProceed: false,
     },
@@ -58,54 +59,56 @@ export default function ProcesoStepper({ setShowStepper }) {
         setActiveStep={setActiveStep}
         anchorEl={anchorEl}
         setShowStepper={setShowStepper}
+        selectedProceso={selectedProceso}
+        setSelectedProceso={setSelectedProceso}
       />
     </>
   );
 }
 
-function StepperContent({ steps, setSteps, activeStep, setActiveStep, anchorEl, setShowStepper }) {
+function StepperContent({ steps, setSteps, activeStep, setActiveStep, anchorEl, setShowStepper, selectedProceso, setSelectedProceso }) {
   const { proceso } = useProceso();
   const showAlert = useAlert();
 
   useEffect(() => {
-    if (activeStep === 0 && proceso.nombre) {
+    if (activeStep === 0 && selectedProceso?.nombre) {
       setSteps((prevSteps) => {
         const newSteps = [...prevSteps];
         newSteps[0].canProceed = true;
         return newSteps;
       });
     }
-  }, [proceso.nombre, activeStep]);
+  }, [selectedProceso?.nombre, activeStep]);
 
   useEffect(() => {
-    if (activeStep === 1 && proceso.aplicacion) {
+    if (activeStep === 1 && selectedProceso?.aplicacion) {
       setSteps((prevSteps) => {
         const newSteps = [...prevSteps];
         newSteps[1].canProceed = true;
         return newSteps;
       });
     }
-  }, [proceso.aplicacion, activeStep]);
+  }, [selectedProceso?.aplicacion, activeStep]);
 
   useEffect(() => {
-    if (activeStep === 2 && proceso.funcionalidades.length > 0) {
+    if (activeStep === 2 && selectedProceso.funcionalidades.length > 0) {
       setSteps((prevSteps) => {
         const newSteps = [...prevSteps];
         newSteps[2].canProceed = true;
         return newSteps;
       });
     }
-  }, [proceso.funcionalidades, activeStep]);
+  }, [selectedProceso?.funcionalidades, activeStep]);
 
   useEffect(() => {
-    if (activeStep === 3 && proceso.testers.length > 0) {
+    if (activeStep === 3 && selectedProceso?.testers.length > 0) {
       setSteps((prevSteps) => {
         const newSteps = [...prevSteps];
         newSteps[3].canProceed = true;
         return newSteps;
       });
     }
-  }, [proceso.testers, activeStep]);
+  }, [selectedProceso?.testers, activeStep]);
 
   const totalSteps = () => steps.length;
 
@@ -123,10 +126,10 @@ function StepperContent({ steps, setSteps, activeStep, setActiveStep, anchorEl, 
     //   "aplicacion_id": 0
     // }
     let _proceso = {
-      nombre: proceso.nombre,
-      descripcion: proceso.descripcion,
+      nombre: selectedProceso?.nombre,
+      descripcion: selectedProceso?.descripcion,
       fecha_creacion: new Date().toISOString(),
-      aplicacion_id: proceso.aplicacion.id,
+      aplicacion_id: selectedProceso.aplicacion.id,
     };
 
     try {
@@ -145,7 +148,7 @@ function StepperContent({ steps, setSteps, activeStep, setActiveStep, anchorEl, 
     //   "proceso_id": 0
     // }
 
-    const funcionalidades = proceso.funcionalidades.map((funcionalidad) => {
+    const funcionalidades = selectedProceso.funcionalidades.map((funcionalidad) => {
       return {
         funcionalidad_id: funcionalidad.id,
         proceso_id: _proceso.id,
@@ -170,7 +173,7 @@ function StepperContent({ steps, setSteps, activeStep, setActiveStep, anchorEl, 
     //   "proceso_id": 0
     // }
 
-    const testers = proceso.testers.map((tester) => {
+    const testers = selectedProceso.testers.map((tester) => {
       return {
         tester_id: tester.id,
         proceso_id: _proceso.id,

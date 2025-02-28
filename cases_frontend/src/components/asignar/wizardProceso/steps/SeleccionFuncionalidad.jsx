@@ -6,11 +6,13 @@ import { useProceso } from '../../context/ProcesoContext';
 import { useAlert } from '../../../../contexts/AlertContext';
 import apiCases from '../../../../services/apiCases';
 
-export default function SeleccionFuncionalidad() {
-  const { proceso, setProceso } = useProceso();
+export default function SeleccionFuncionalidad({
+  selectedProceso,
+  setSelectedProceso,
+}) {
 
   const handleSelect = (funcionalidades) => {
-    setProceso((prev) => ({ ...prev, funcionalidades }));
+    setSelectedProceso((prev) => ({ ...prev, funcionalidades }));
   };
 
   const [data, setData] = useState([]);
@@ -40,11 +42,11 @@ export default function SeleccionFuncionalidad() {
     // Always filter by aplicacion.id if present
     let filters = [];
 
-    if (proceso.aplicacion?.id) {
+    if (selectedProceso?.aplicacion?.id) {
       filters.push({
         field: 'aplicacion_id',
         operator: 'equals',
-        value: proceso.aplicacion.id,
+        value: selectedProceso?.aplicacion?.id,
       });
     }
 
@@ -81,7 +83,7 @@ export default function SeleccionFuncionalidad() {
     setSearch('');
     handleClose();
   }
-    , [proceso]);
+    , [selectedProceso]);
 
   return <>
     <Box gap={2} py={2}>
@@ -94,10 +96,10 @@ export default function SeleccionFuncionalidad() {
         onOpen={handleOpen}
         onClose={handleClose}
         loading={loading}
-        value={proceso.funcionalidades}
+        value={selectedProceso.funcionalidades}
         getOptionLabel={(option) => option.nombre}
         onChange={(event, newValue) => {
-          setProceso((prev) => ({ ...prev, funcionalidades: newValue }));
+          setSelectedProceso((prev) => ({ ...prev, funcionalidades: newValue }));
         }}
         filterOptions={(x) => x}
         renderInput={(params) => (
