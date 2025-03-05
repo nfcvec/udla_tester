@@ -107,7 +107,8 @@ def apply_pagination(query, pagination: dict):
     if pagination:
         page = pagination.get('page', 0)
         page_size = pagination.get('pageSize', 10)
-        query = query.offset(page * page_size).limit(page_size)
+        if page_size != -1:
+            query = query.offset(page * page_size).limit(page_size)
     return query
     
 
@@ -529,7 +530,6 @@ def update_proceso(db: Session, proceso_id: int, proceso: schemas.ProcesoUpdate)
     db_proceso = db.query(models.Proceso).filter(models.Proceso.id == proceso_id).first()
     db_proceso.nombre = proceso.nombre
     db_proceso.descripcion = proceso.descripcion
-    db_proceso.fecha_creacion = proceso.fecha_creacion
     db_proceso.aplicacion_id = proceso.aplicacion_id
     db.commit()
     db.refresh(db_proceso)
@@ -581,3 +581,40 @@ def delete_asignacion(db: Session, asignacion_id: int):
         db.delete(db_asignacion)
         db.commit()
     return db_asignacion
+
+def create_resultado(db: Session, resultado: schemas.ResultadoCreate):
+    db_resultado = models.Resultado(**resultado.model_dump())
+    db.add(db_resultado)
+    db.commit()
+    db.refresh(db_resultado)
+    return db_resultado
+
+def get_resultado(db: Session, resultado_id: int):
+    return db.query(models.Resultado).filter(models.Resultado.id == resultado_id).first()
+
+def get_resultados(db: Session, sorts: list = [], pagination: dict = {}, filters: list = []):
+    query = db.query(models.Resultado).join(models.Asignacion)
+    query = apply_filters(query, models.Resultado, filters)
+    total = query.count()
+    query = apply_sort(query, models.Resultado, sorts)
+    query = apply_pagination(query, pagination)
+    resultados = query.all()
+    return resultados, total
+
+def update_resultado(db: Session, resultado_id: int, resultado: schemas.ResultadoUpdate):
+    db_resultado = db.query(models.Resultado).filter(models.Resultado.id == resultado_id).first()
+    db_resultado.id_usuario_prueba = resultado.id_usuario_prueba
+    db_resultado.tiempo_resolucion = resultado.tiempo_resolucion
+    db_resultado.ok_funcionamiento = resultado.ok_funcionamiento
+    db_resultado.ok_ux = resultado.ok_ux
+    db_resultado.observaciones = resultado.observaciones
+    db.commit()
+    db.refresh(db_resultado)
+    return db_resultado
+
+def delete_resultado(db: Session, resultado_id: int):
+    db_resultado = db.query(models.Resultado).filter(models.Resultado.id == resultado_id).first()
+    if db_resultado:
+        db.delete(db_resultado)
+        db.commit()
+    return db_resultado

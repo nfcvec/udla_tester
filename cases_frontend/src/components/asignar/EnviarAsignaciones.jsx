@@ -64,16 +64,14 @@ export default function EnviarAsignaciones() {
 
 
 
-  const handleAsignarClick = () => {
+  const handleAsignarClick = async () => {
     const asignaciones = casosPrueba.map(casoPrueba => ({
       proceso_id: proceso.id,
       tester_id: selectedTester.id,
       caso_prueba_id: casoPrueba.id
     }));
 
-    for (const asignacion of asignaciones) {
-      apiCases.createAsignacion(asignacion);
-    }
+    await Promise.all(asignaciones.map(asignacion => apiCases.createAsignacion(asignacion)));
 
     console.log("Asignaciones", asignaciones);
 

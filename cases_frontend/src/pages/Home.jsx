@@ -1,4 +1,4 @@
-import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-react";
+import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from "@azure/msal-react";
 import Button from "@mui/material/Button";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import Typography from "@mui/material/Typography";
@@ -6,6 +6,9 @@ import { Link as RouterLink } from "react-router-dom";
 import { Container, Stack } from "@mui/material";
 
 export function Home() {
+  const { accounts } = useMsal();
+  const user = accounts[0];
+
   return (
     <>
       <AuthenticatedTemplate>
@@ -13,17 +16,18 @@ export function Home() {
           <Typography variant="h6">
             ¡Bienvenido a la aplicación de clasificación de casos de prueba!
           </Typography>
-            <Stack spacing={2} direction="row">
-                <Button component={RouterLink} to="/administrar">
-                  Administrar
-                </Button>
-                <Button component={RouterLink} to="/asignar">
-                  Asignar
-                </Button>
-                <Button component={RouterLink} to="/resultados">
-                  Resultados
-                </Button>
-            </Stack>
+          <pre>{JSON.stringify(user, null, 2)}</pre>
+          <Stack spacing={2} direction="row">
+            <Button component={RouterLink} to="/administrar">
+              Administrar
+            </Button>
+            <Button component={RouterLink} to="/asignar">
+              Asignar
+            </Button>
+            <Button component={RouterLink} to="/resultados">
+              Resultados
+            </Button>
+          </Stack>
         </Container>
       </AuthenticatedTemplate>
 

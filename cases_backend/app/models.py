@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Text, DateTime
+from sqlalchemy import Column, Integer, String, ForeignKey, Text, DateTime, Boolean, Float
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 from app.database import Base
 
 class Aplicacion(Base):
@@ -107,9 +108,13 @@ class Asignacion(Base):
     proceso_id = Column(Integer, ForeignKey('proceso.id'))
     tester_id = Column(String, index=True)
     caso_prueba_id = Column(Integer, ForeignKey('caso_prueba.id'))
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
     proceso = relationship("Proceso", back_populates="asignaciones")
     caso_prueba = relationship("CasoPrueba")
+    resultados = relationship("Resultado", back_populates="asignacion")
+
 
 class Proceso(Base):
     __tablename__ = 'proceso'
@@ -117,10 +122,28 @@ class Proceso(Base):
     id = Column(Integer, primary_key=True, index=True)
     nombre = Column(String, index=True)
     descripcion = Column(Text)
-    fecha_creacion = Column(DateTime)
     aplicacion_id = Column(Integer, ForeignKey('aplicacion.id'))
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
     aplicacion = relationship("Aplicacion", back_populates="procesos")
     funcionalidades_proceso = relationship("FuncionalidadesProceso", back_populates="proceso")
     testers_proceso = relationship("TestersProceso", back_populates="proceso")
     asignaciones = relationship("Asignacion", back_populates="proceso")
+
+
+class Resultado(Base):
+    __tablename__ = 'resultado'
+    
+    id = Column(Integer, primary_key=True, index=True)
+    tiempo_resolucion = Column(Float)
+    id_usuario_prueba = Column(String)
+    ok_funcionamiento = Column(Boolean)
+    ok_ux = Column(Boolean)
+    observaciones = Column(Text, nullable=True)
+    asignacion_id = Column(Integer, ForeignKey('asignacion.id'))
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+
+    asignacion = relationship("Asignacion", back_populates="resultados")
+

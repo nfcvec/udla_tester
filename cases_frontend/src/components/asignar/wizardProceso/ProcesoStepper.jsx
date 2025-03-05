@@ -91,7 +91,7 @@ function StepperContent({ steps, setSteps, activeStep, setActiveStep, anchorEl, 
   }, [selectedProceso?.aplicacion, activeStep]);
 
   useEffect(() => {
-    if (activeStep === 2 && selectedProceso.funcionalidades.length > 0) {
+    if (activeStep === 2 && selectedProceso.funcionalidades?.length > 0) {
       setSteps((prevSteps) => {
         const newSteps = [...prevSteps];
         newSteps[2].canProceed = true;
@@ -101,7 +101,7 @@ function StepperContent({ steps, setSteps, activeStep, setActiveStep, anchorEl, 
   }, [selectedProceso?.funcionalidades, activeStep]);
 
   useEffect(() => {
-    if (activeStep === 3 && selectedProceso?.testers.length > 0) {
+    if (activeStep === 3 && selectedProceso?.testers?.length > 0) {
       setSteps((prevSteps) => {
         const newSteps = [...prevSteps];
         newSteps[3].canProceed = true;

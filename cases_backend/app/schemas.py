@@ -182,17 +182,41 @@ class AsignacionCreate(AsignacionBase):
 class AsignacionUpdate(AsignacionBase):
     pass
 
+class ResultadoBase(BaseModel):
+    asignacion_id: int
+    id_usuario_prueba: str
+    tiempo_resolucion: int
+    ok_funcionamiento: bool
+    ok_ux: bool
+    observaciones: Optional[str] = None
+
+class ResultadoCreate(ResultadoBase):
+    pass
+
+class ResultadoUpdate(ResultadoBase):
+    pass
+
+class Resultado(ResultadoBase):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
 class Asignacion(AsignacionBase):
     id: int
     caso_prueba: CasoPrueba
-    
+    resultados: List[Resultado] = []
+    created_at: datetime
+    updated_at: datetime
+
     class Config:
         from_attributes = True
 
 class ProcesoBase(BaseModel):
     nombre: str
     descripcion: str
-    fecha_creacion: datetime
     aplicacion_id: int
 
 class ProcesoCreate(ProcesoBase):
@@ -206,6 +230,8 @@ class Proceso(ProcesoBase):
     aplicacion: Aplicacion
     funcionalidades_proceso: List[FuncionalidadesProceso] = []
     testers_proceso: List[TestersProceso] = []
+    created_at: datetime
+    updated_at: datetime
 
     class Config:
         from_attributes = True

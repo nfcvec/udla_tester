@@ -12,12 +12,11 @@ import { msalConfig } from "./authConfig";
 
 export const msalInstance = new PublicClientApplication(msalConfig);
 
-msalInstance.initialize().then(() => {
+async function initializeMsal() {
+    await msalInstance.initialize();
+    
     // Default to using the first account if no account is active on page load
-    if (
-        !msalInstance.getActiveAccount() &&
-        msalInstance.getAllAccounts().length > 0
-    ) {
+    if (!msalInstance.getActiveAccount() && msalInstance.getAllAccounts().length > 0) {
         // Account selection logic is app dependent. Adjust as needed for different use cases.
         msalInstance.setActiveAccount(msalInstance.getAllAccounts()[0]);
     }
@@ -25,11 +24,9 @@ msalInstance.initialize().then(() => {
     // Optional - This will update account state if a user signs in from another tab or window
     msalInstance.enableAccountStorageEvents();
 
+    // Listen for sign-in event and set active account
     msalInstance.addEventCallback((event) => {
-        if (
-            event.eventType === EventType.LOGIN_SUCCESS &&
-            event.payload.account
-        ) {
+        if (event.eventType === EventType.LOGIN_SUCCESS && event.payload.account) {
             const account = event.payload.account;
             msalInstance.setActiveAccount(account);
         }
@@ -44,4 +41,6 @@ msalInstance.initialize().then(() => {
             </Router>
         </StrictMode>
     );
-});
+}
+
+initializeMsal();

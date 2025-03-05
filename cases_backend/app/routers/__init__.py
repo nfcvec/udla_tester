@@ -1,7 +1,7 @@
 # Contents of /fastapi-backend/fastapi-backend/app/routers/__init__.py
 
 from fastapi import APIRouter
-from . import aplicacion, pantalla, funcionalidad, so, tipo_prueba, tipo_usuario, caso_prueba, proceso, testers_proceso, funcionalidades_proceso, asignacion
+from . import aplicacion, pantalla, funcionalidad, so, tipo_prueba, tipo_usuario, caso_prueba, proceso, testers_proceso, funcionalidades_proceso, asignacion, resultado
 
 router = APIRouter()
 
@@ -16,3 +16,5 @@ router.include_router(proceso.router, prefix="/proceso", tags=["proceso"])
 router.include_router(testers_proceso.router, prefix="/testers_proceso", tags=["testers_proceso"])
 router.include_router(funcionalidades_proceso.router, prefix="/funcionalidades_proceso", tags=["funcionalidades_proceso"])
 router.include_router(asignacion.router, prefix="/asignacion", tags=["asignacion"])
+router.include_router(resultado.router, prefix="/resultado", tags=["resultado"])
+
