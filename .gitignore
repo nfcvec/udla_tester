@@ -29,3 +29,4 @@ __pycache__
 .venv
 venv
 cases_backend/fastapi-backend/test.db
+cases_backend/udlatester.db

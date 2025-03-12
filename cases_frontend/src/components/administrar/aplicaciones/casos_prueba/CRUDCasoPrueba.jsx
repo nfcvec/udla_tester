@@ -4,6 +4,7 @@ import FormularioCasoPrueba from "./FormularioCasoPrueba";
 import apiCases from "../../../../services/apiCases";
 import { CasoPruebaProvider } from "./CasoPruebaContext";
 import { useAlert } from '../../../../contexts/AlertContext';
+import { Box } from "@mui/material";
 
 const CRUDCasoPrueba = ({ aplicacion }) => {
     const [open, setOpen] = useState(false);
@@ -14,7 +15,7 @@ const CRUDCasoPrueba = ({ aplicacion }) => {
     const [sortModel, setSortModel] = useState([]);
     const [filterModel, setFilterModel] = useState({});
     const [paginationModel, setPaginationModel] = useState({
-        pageSize: 5,
+        pageSize: 20,
         page: 0,
     });
     const [formData, setFormData] = useState({
@@ -103,6 +104,8 @@ const CRUDCasoPrueba = ({ aplicacion }) => {
     };
 
     return (
+        <>
+
         <CasoPruebaProvider
             value={{
                 open,
@@ -128,6 +131,8 @@ const CRUDCasoPrueba = ({ aplicacion }) => {
             <DataGridCasoPrueba />
             <FormularioCasoPrueba />
         </CasoPruebaProvider>
+        
+        </>
     );
 };
 

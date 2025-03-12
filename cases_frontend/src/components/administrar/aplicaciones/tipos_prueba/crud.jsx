@@ -6,7 +6,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useAlert } from '../../../../contexts/AlertContext';
 
-const CRUDTiposPrueba = ({aplicacion}) => {
+const CRUDTiposPrueba = ({ aplicacion }) => {
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
   const [open, setOpen] = useState(false);
@@ -28,51 +28,51 @@ const CRUDTiposPrueba = ({aplicacion}) => {
   }, []);
 
   const [paginationModel, setPaginationModel] = useState({
-    pageSize: 5,
+    pageSize: 20,
     page: 0,
   });
 
   const fetchData = async () => {
     const params = {
       pagination: JSON.stringify(paginationModel),
-  };
+    };
 
-  if (sortModel.length > 0) {
+    if (sortModel.length > 0) {
       params.sorts = JSON.stringify(sortModel);
-  }
+    }
 
-  const filters = [];
+    const filters = [];
 
-  if (aplicacion.id) {
+    if (aplicacion.id) {
       filters.push({
-          field: "aplicacion_id",
-          operator: "equals",
-          value: aplicacion.id,
+        field: "aplicacion_id",
+        operator: "equals",
+        value: aplicacion.id,
       });
-  }
+    }
 
 
-  if (filterModel.items) {
+    if (filterModel.items) {
       filterModel.items.forEach((item) => {
-          filters.push({
-              field: item.field,
-              operator: item.operator,
-              value: item.value,
-          });
+        filters.push({
+          field: item.field,
+          operator: item.operator,
+          value: item.value,
+        });
       });
-  }
+    }
 
-  if (filters.length > 0) {
+    if (filters.length > 0) {
       params.filters = JSON.stringify(filters);
-  }
+    }
 
-  if (paginationModel) {
+    if (paginationModel) {
       params.pagination = JSON.stringify(paginationModel);
-  }
+    }
 
-  if (sortModel) {
+    if (sortModel) {
       params.sort = JSON.stringify(sortModel);
-  }
+    }
 
     try {
       const response = await apiCases.readTiposPrueba(params);
@@ -170,65 +170,62 @@ const CRUDTiposPrueba = ({aplicacion}) => {
   ];
 
   return (
-      <Box sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 2,
-      }}>
-        <Box
-          textAlign="right">
-          <Button variant="contained" color="primary" onClick={() => handleOpen(null)}>Añadir</Button>
-        </Box>
-        <DataGrid
-          rows={data}
-          columns={columns}
-          pageSizeOptions={[5]}
-          paginationModel={paginationModel}
-          onPaginationModelChange={setPaginationModel}
-          rowCount={total}
-          paginationMode="server"
-          sortingMode="server"
-          sortModel={sortModel}
-          onSortModelChange={handleSortModelChange}
-          filterMode="server"
-          onFilterModelChange={handleFilterModelChange}
-          checkboxSelection={false}
-        />
-        <Dialog open={open} onClose={handleClose}>
-          <DialogTitle>{isEdit ? 'Edit Tipo de Prueba' : 'Add New Tipo de Prueba'}</DialogTitle>
-          <DialogContent>
-            <Select
-              autoFocus
-              margin="dense"
-              name="aplicacion_id"
-              label="Aplicacion"
-              fullWidth
-              value={formData.aplicacion_id}
-              onChange={handleChange}
-            >
-              {aplicaciones.map((aplicacion) => (
-                <MenuItem key={aplicacion.id} value={aplicacion.id}>{aplicacion.nombre}</MenuItem>
-              ))}
-            </Select>
-            <TextField
-              autoFocus
-              margin="dense"
-              name="nombre"
-              label="Nombre"
-              type="text"
-              fullWidth
-              value={formData.nombre}
-              onChange={handleChange}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose} color="primary">Cancelar</Button>
-            <Button onClick={handleSubmit} color="primary">
-              {isEdit ? "Guardar" : "Agregar"}
-            </Button>
-          </DialogActions>
-        </Dialog>
+    <Box display={"flex"} flexDirection={"column"} gap={2} maxHeight={"calc(100vh - 250px)"}>
+
+      <Box
+        textAlign="right">
+        <Button variant="contained" color="primary" onClick={() => handleOpen(null)}>Añadir</Button>
       </Box>
+      <DataGrid
+        rows={data}
+        columns={columns}
+        pageSizeOptions={[5]}
+        paginationModel={paginationModel}
+        onPaginationModelChange={setPaginationModel}
+        rowCount={total}
+        paginationMode="server"
+        sortingMode="server"
+        sortModel={sortModel}
+        onSortModelChange={handleSortModelChange}
+        filterMode="server"
+        onFilterModelChange={handleFilterModelChange}
+        checkboxSelection={false}
+      />
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>{isEdit ? 'Edit Tipo de Prueba' : 'Add New Tipo de Prueba'}</DialogTitle>
+        <DialogContent>
+          <Select
+            autoFocus
+            margin="dense"
+            name="aplicacion_id"
+            label="Aplicacion"
+            fullWidth
+            value={formData.aplicacion_id}
+            onChange={handleChange}
+          >
+            {aplicaciones.map((aplicacion) => (
+              <MenuItem key={aplicacion.id} value={aplicacion.id}>{aplicacion.nombre}</MenuItem>
+            ))}
+          </Select>
+          <TextField
+            autoFocus
+            margin="dense"
+            name="nombre"
+            label="Nombre"
+            type="text"
+            fullWidth
+            value={formData.nombre}
+            onChange={handleChange}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">Cancelar</Button>
+          <Button onClick={handleSubmit} color="primary">
+            {isEdit ? "Guardar" : "Agregar"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
   );
 };
 

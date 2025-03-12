@@ -1,16 +1,30 @@
-import { Typography } from "@mui/material";
-import { useMsal, useMsalAuthentication } from "@azure/msal-react";
+import { Box, Button, Typography } from "@mui/material";
+import { AuthenticatedTemplate, MsalAuthenticationTemplate, UnauthenticatedTemplate, useMsal } from "@azure/msal-react";
+import ListaProcesos from "./ListaProcesos";
 
-export default function CasosPorProbar() {    
-    const { instance } = useMsal();
-    const { account } = instance.getActiveAccount();
-
+export default function CasosPorProbar() {
+    const { accounts } = useMsal();
 
     return (
         <>
-            <Typography variant="h6">
-                Casos por probar de {JSON.stringify(account)}
-            </Typography>
+            <MsalAuthenticationTemplate interactionType="redirect">
+                <AuthenticatedTemplate>
+                    <CasosPorProbarContent accounts={accounts} />
+                </AuthenticatedTemplate>
+                <UnauthenticatedTemplate>
+                    <Typography variant="h6">
+                        <center>¡Hola! Debes iniciar sesión para continuar...</center>
+                    </Typography>
+                </UnauthenticatedTemplate>
+            </MsalAuthenticationTemplate>
+        </>
+    );
+}
+
+const CasosPorProbarContent = ({ accounts }) => {
+    return (
+        <>
+            <ListaProcesos accounts={accounts} />
         </>
     );
 }

@@ -93,6 +93,8 @@ export default function EnviarAsignaciones() {
           icon={<GridDeleteIcon />}
           label="Delete"
           onClick={() => handleDeleteAsignacion(params.row)}
+          // deshabilitar si asignacion.resultados.length > 0
+          disabled={params.row.resultados?.length > 0}
         />,
       ],
     },
@@ -158,7 +160,7 @@ export default function EnviarAsignaciones() {
           <FormLabel>Casos asignados a {selectedTester.displayName}</FormLabel>
           <Box textAlign="right">
             <Button variant="contained" onClick={handleAgregarClick}>
-              Agregar
+              Asignar
             </Button>
           </Box>
           <DataGrid
@@ -170,26 +172,27 @@ export default function EnviarAsignaciones() {
           />
         </Box></>) || <Typography variant="body1">Seleccione un tester para ver sus asignaciones</Typography>}
 
-      <Dialog open={open} onClose={() => setOpen(false)}>
-        <Box p={2} display={'flex'} flexDirection={'column'} gap={2}>
+      <Dialog open={open} onClose={() => setOpen(false)} maxWidth="xl" fullWidth>
+        <Box p={2} display={'flex'} flexDirection={'column'} gap={2} sx={{
+          height: 600,
+        }} >
           <FormLabel>Seleccionar los casos a asignar a {selectedTester?.displayName}</FormLabel>
           <SelectorCasoPrueba isMultiple={true} prefilters={
             [{
               field: "funcionalidad_id",
               operator: "isAnyOf",
-              value: proceso.funcionalidades_proceso.map(funcionalidad => funcionalidad.id)
+              value: proceso.funcionalidades_proceso.map(funcionalidad => funcionalidad.funcionalidad_id)
             },
             {
               field: "id",
               operator: "isNoneOf",
               value: asignaciones.map(asignacion => asignacion.caso_prueba_id)
             },
-
             ]
           } casosPrueba={casosPrueba} setCasosPrueba={setCasosPrueba} />
           <Box textAlign="right">
             <Button variant="contained" onClick={handleAsignarClick}>
-              Asignar
+              Enviar
             </Button>
           </Box>
         </Box>

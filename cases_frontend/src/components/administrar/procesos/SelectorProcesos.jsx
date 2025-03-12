@@ -43,6 +43,14 @@ const SelectorProcesos = ({ isMultiple, setProceso, setProcesos }) => {
     };
 
     useEffect(() => {
+        if (sortModel.length === 0) {
+            setSortModel([
+                {
+                    field: "id",
+                    sort: "desc",
+                },
+            ]);
+        }
         fetchData();
     }, [paginationModel, sortModel, filterModel]);
 

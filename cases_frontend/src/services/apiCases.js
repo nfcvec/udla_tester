@@ -69,6 +69,12 @@ const apiCases = {
   updateAsignacion: (id, data) => axios.put(`${API_BASE_URL}/asignacion/${id}`, data),
   deleteAsignacion: (id) => axios.delete(`${API_BASE_URL}/asignacion/${id}`),
 
+  createResultado: (data) => axios.post(`${API_BASE_URL}/resultado/`, data),
+  readResultados: (params) => axios.get(`${API_BASE_URL}/resultado/`, { params }),
+  readResultado: (id) => axios.get(`${API_BASE_URL}/resultado/${id}`),
+  updateResultado: (id, data) => axios.put(`${API_BASE_URL}/resultado/${id}`, data),
+  deleteResultado: (id) => axios.delete(`${API_BASE_URL}/resultado/${id}`),
+
   
   readRoot: () => axios.get(`${API_BASE_URL}/`)
 };

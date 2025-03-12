@@ -38,8 +38,8 @@ const DataGridCasoPrueba = () => {
 
   const columns = [
     { field: 'id', headerName: 'ID', width: 90 },
-    { field: 'paso_a_paso', headerName: 'Paso a Paso', width: 150},
-    { field: 'funcionalidad', headerName: 'Funcionalidad', width: 150, valueGetter: (params) => params.nombre},
+    { field: 'paso_a_paso', headerName: 'Paso a Paso', width: 150 },
+    { field: 'funcionalidad', headerName: 'Funcionalidad', width: 150, valueGetter: (params) => params.nombre },
     { field: 'so', headerName: 'Sis. Op.', width: 150, valueGetter: (params) => params.nombre },
     { field: 'tipo_prueba', headerName: 'Tipo Prueba', width: 150, valueGetter: (params) => params.nombre },
     { field: 'pantalla', headerName: 'Pantalla', width: 150, valueGetter: (params) => params.nombre },
@@ -66,30 +66,27 @@ const DataGridCasoPrueba = () => {
   ];
 
   return (
-      <Box sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 2,
-      }}>
-        <Box textAlign="right">
-          <Button variant="contained" color="primary" onClick={() => handleOpen(null)}>Añadir</Button>
-        </Box>
-        <DataGrid
-          rows={data}
-          columns={columns}
-          pageSizeOptions={[5]}
-          paginationModel={paginationModel}
-          onPaginationModelChange={setPaginationModel}
-          rowCount={total}
-          paginationMode="server"
-          sortingMode="server"
-          sortModel={sortModel}
-          onSortModelChange={handleSortModelChange}
-          filterMode="server"
-          onFilterModelChange={handleFilterModelChange}
-          checkboxSelection={false}
-        />
+    <Box display={"flex"} flexDirection={"column"} gap={2} maxHeight={"calc(100vh - 250px)"}>
+
+      <Box textAlign="right">
+        <Button variant="contained" color="primary" onClick={() => handleOpen(null)}>Añadir</Button>
       </Box>
+      <DataGrid
+        rows={data}
+        columns={columns}
+        pageSizeOptions={[5]}
+        paginationModel={paginationModel}
+        onPaginationModelChange={setPaginationModel}
+        rowCount={total}
+        paginationMode="server"
+        sortingMode="server"
+        sortModel={sortModel}
+        onSortModelChange={handleSortModelChange}
+        filterMode="server"
+        onFilterModelChange={handleFilterModelChange}
+        checkboxSelection={false}
+      />
+    </Box>
   );
 };
 

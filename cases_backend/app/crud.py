@@ -42,7 +42,7 @@ def apply_filters(query, model, filters):
                 model = models.TipoUsuario
                 field = 'nombre'
                 query = query.join(models.TipoUsuario)
-                
+            
             operator = filter['operator']
             value = filter.get('value', '')
             if operator == 'equals':
@@ -557,7 +557,20 @@ def get_asignacion(db: Session, asignacion_id: int):
 
 def get_asignaciones(db: Session, filters: list = [], sorts: list = [], pagination: dict = {}):
     query = db.query(models.Asignacion)
+    
+    # Check for special filter to exclude referenced asignaciones
+    exclude_referenced = False
+    for filter in filters:
+        if filter.get('field') == 'exclude_referenced' and filter.get('value') is True:
+            exclude_referenced = True
+            filters.remove(filter)
+            break
+    
     query = apply_filters(query, models.Asignacion, filters)
+    
+    if exclude_referenced:
+        query = query.outerjoin(models.Resultado).filter(models.Resultado.id == None)
+    
     total = query.count()
     query = apply_sort(query, models.Asignacion, sorts)
     query = apply_pagination(query, pagination)

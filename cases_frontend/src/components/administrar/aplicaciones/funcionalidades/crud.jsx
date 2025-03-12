@@ -28,7 +28,7 @@ const CRUDFuncionalidades = ({ aplicacion }) => {
   }, []);
 
   const [paginationModel, setPaginationModel] = useState({
-    pageSize: 5,
+    pageSize: 20,
     page: 0,
   });
 
@@ -174,11 +174,8 @@ const CRUDFuncionalidades = ({ aplicacion }) => {
   ];
 
   return (
-    <Box sx={{
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 2,
-    }}>
+    <Box display={"flex"} flexDirection={"column"} gap={2} maxHeight={"calc(100vh - 250px)"}>
+
       <Box
         textAlign="right">
         <Button variant="contained" color="primary" onClick={() => handleOpen(null)}>Añadir</Button>

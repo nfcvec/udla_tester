@@ -1,7 +1,7 @@
 import React from 'react';
 import { Route, Routes, useNavigate } from 'react-router-dom';
-import Administrar from './components/administrar/administrar';
-import Asignar from './components/asignar/Asignar';
+import AdministrarCasos from './components/administrar/administrar';
+import AdministrarProcesos from './components/asignar/Asignar';
 import Resultados from './components/resultados/resultados';
 import {
     Box,
@@ -39,9 +39,8 @@ function App({ pca }) {
                     <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' } }}>
                         <Container sx={{ flexGrow: 1, p: 3, width: { xs: '100%', sm: `calc(100% - ${drawerWidth}px)` } }}>
                             <Routes>
-                                <Route path="/administrar" element={<Administrar />} />
-                                <Route path="/asignar" element={<Asignar />} />
-                                <Route path="/resultados" element={<Resultados />} />
+                                <Route path="/administrar" element={<AdministrarCasos />} />
+                                <Route path="/procesos" element={<AdministrarProcesos />} />
                                 <Route path="/probar" element={<CasosPorProbar />} />
                                 <Route path="/profile" element={<Profile />} />
                                 <Route path="/profileWithMsal" element={<ProfileWithMsal />} />

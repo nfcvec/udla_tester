@@ -9,7 +9,7 @@ import EnviarAsignaciones from './EnviarAsignaciones';
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 
-export default function Asignar() {
+export default function AdministrarProcesos() {
   return (
     <>
       <ProcesoProvider>
@@ -36,7 +36,7 @@ export const AsignarContent = () => {
           <ArrowBackIcon />
         </IconButton>
         <Typography variant="h6" sx={{ ml: 1 }}>
-          {proceso.nombre || "Administrar procesos"}
+          {proceso.nombre || "Lista de procesos de prueba"}
         </Typography>
       </Box>
       {proceso.nombre && (

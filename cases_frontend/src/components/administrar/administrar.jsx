@@ -40,7 +40,7 @@ function a11yProps(index) {
     };
 }
 
-function Administrar() {
+function AdministrarCasos() {
     const [aplicacion, setAplicacion] = useState({});
     const [value, setValue] = useState(0);
 
@@ -55,7 +55,7 @@ function Administrar() {
                     <ArrowBackIcon />
                 </IconButton>
                 <Typography variant="h6" sx={{ ml: 1 }}>
-                    {aplicacion.nombre || "Administrar aplicaciones"}
+                    {aplicacion.nombre || "Lista de aplicaciones"}
                 </Typography>
             </Box>
             {!aplicacion.nombre && (
@@ -103,4 +103,4 @@ function Administrar() {
     );
 }
 
-export default Administrar;
+export default AdministrarCasos;

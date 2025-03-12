@@ -16,16 +16,17 @@ export function Home() {
           <Typography variant="h6">
             ¡Bienvenido a la aplicación de clasificación de casos de prueba!
           </Typography>
-          <pre>{JSON.stringify(user, null, 2)}</pre>
+          {/* <pre>{JSON.stringify(user.idTokenClaims.roles)}</pre> */}
+          {/* <pre>{JSON.stringify(user, null, 2)}</pre> */}
           <Stack spacing={2} direction="row">
             <Button component={RouterLink} to="/administrar">
-              Administrar
+              Administrar casos de prueba
             </Button>
-            <Button component={RouterLink} to="/asignar">
-              Asignar
+            <Button component={RouterLink} to="/procesos">
+              Administrar procesos de prueba
             </Button>
-            <Button component={RouterLink} to="/resultados">
-              Resultados
+            <Button component={RouterLink} to="/probar">
+              Probar casos asignados
             </Button>
           </Stack>
         </Container>

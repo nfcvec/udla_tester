@@ -23,6 +23,12 @@ export default function ProcesoStepper({ setShowStepper }) {
       canProceed: false,
     },
     {
+      label: 'Selecciona los testers',
+      component: <SeleccionTesters selectedProceso={selectedProceso} setSelectedProceso={setSelectedProceso} />,
+      isComplete: false,
+      canProceed: false,
+    },
+    {
       label: 'Selecciona una aplicación',
       component: <SeleccionAplicacion selectedProceso={selectedProceso} setSelectedProceso={setSelectedProceso} />,
       isComplete: false,
@@ -31,12 +37,6 @@ export default function ProcesoStepper({ setShowStepper }) {
     {
       label: 'Selecciona las funcionalidades a probar',
       component: <SeleccionFuncionalidad selectedProceso={selectedProceso} setSelectedProceso={setSelectedProceso} />,
-      isComplete: false,
-      canProceed: false,
-    },
-    {
-      label: 'Selecciona los testers',
-      component: <SeleccionTesters selectedProceso={selectedProceso} setSelectedProceso={setSelectedProceso} />,
       isComplete: false,
       canProceed: false,
     },
@@ -71,44 +71,45 @@ function StepperContent({ steps, setSteps, activeStep, setActiveStep, anchorEl, 
   const showAlert = useAlert();
 
   useEffect(() => {
-    if (activeStep === 0 && selectedProceso?.nombre) {
+    if (activeStep === 0 && selectedProceso?.nombre && selectedProceso?.descripcion) {
       setSteps((prevSteps) => {
         const newSteps = [...prevSteps];
         newSteps[0].canProceed = true;
         return newSteps;
       });
     }
-  }, [selectedProceso?.nombre, activeStep]);
+  }, [selectedProceso?.nombre, selectedProceso?.descripcion, activeStep]);
 
   useEffect(() => {
-    if (activeStep === 1 && selectedProceso?.aplicacion) {
+    if (activeStep === 1 && selectedProceso?.testers?.length > 0) {
       setSteps((prevSteps) => {
         const newSteps = [...prevSteps];
         newSteps[1].canProceed = true;
         return newSteps;
       });
     }
-  }, [selectedProceso?.aplicacion, activeStep]);
+  }, [selectedProceso?.testers, activeStep]);
 
   useEffect(() => {
-    if (activeStep === 2 && selectedProceso.funcionalidades?.length > 0) {
+    if (activeStep === 2 && selectedProceso?.aplicacion) {
       setSteps((prevSteps) => {
         const newSteps = [...prevSteps];
         newSteps[2].canProceed = true;
         return newSteps;
       });
     }
-  }, [selectedProceso?.funcionalidades, activeStep]);
+  }, [selectedProceso?.aplicacion, activeStep]);
 
   useEffect(() => {
-    if (activeStep === 3 && selectedProceso?.testers?.length > 0) {
+    if (activeStep === 3 && selectedProceso.funcionalidades?.length > 0) {
       setSteps((prevSteps) => {
         const newSteps = [...prevSteps];
         newSteps[3].canProceed = true;
         return newSteps;
       });
     }
-  }, [selectedProceso?.testers, activeStep]);
+  }, [selectedProceso?.funcionalidades, activeStep]);
+
 
   const totalSteps = () => steps.length;
 

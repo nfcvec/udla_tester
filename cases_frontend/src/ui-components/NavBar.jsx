@@ -56,16 +56,13 @@ const NavBar = () => {
                         }}
                     >
                         <MenuItem onClick={handleMenuClose} component={RouterLink} to="/administrar">
-                            Administrar
+                            Administrar casos de prueba
                         </MenuItem>
-                        <MenuItem onClick={handleMenuClose} component={RouterLink} to="/asignar">
-                            Asignar
-                        </MenuItem>
-                        <MenuItem onClick={handleMenuClose} component={RouterLink} to="/resultados">
-                            Resultados
+                        <MenuItem onClick={handleMenuClose} component={RouterLink} to="/procesos">
+                            Administrar procesos de prueba
                         </MenuItem>
                         <MenuItem onClick={handleMenuClose} component={RouterLink} to="/probar">
-                            Probar
+                            Probar casos asignados
                         </MenuItem>
                     </Menu>
                     <Typography style={{ flexGrow: 1 }}>

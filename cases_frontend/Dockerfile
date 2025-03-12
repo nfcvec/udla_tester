@@ -34,5 +34,5 @@ WORKDIR /app
 # Exponer el puerto en el que la aplicación se ejecutará
 EXPOSE 3000
 
-# Comando para ejecutar 'serve'
-CMD ["serve", "-s", "dist", "-l", "3000"]
+# Comando para mantener el contenedor encendido mientras se hace un debug
+CMD ["tail", "-f", "/dev/null"]

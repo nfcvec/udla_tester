@@ -12,7 +12,6 @@ export default function DatosProceso({
 
   return <>
     <Box gap={2} py={2}>
-      <code>{JSON.stringify(selectedProceso)}</code>
       <FormGroup sx={{ display: 'flex', flexDirection: 'column' }}>
         <FormLabel>Da un nombre a la asignación</FormLabel>
         <TextField
