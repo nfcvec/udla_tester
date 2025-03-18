@@ -53,13 +53,6 @@ export const msalConfig = {
 };
 
 export const protectedResources = {
-    apiTodoList: {
-        endpoint: "http://localhost:5000/api/todolist",
-        scopes: {
-            read: ["api://9be25ccc-dc3f-4d70-b2ea-ce1216abe784/Todolist.Read"],
-            write: ["api://9be25ccc-dc3f-4d70-b2ea-ce1216abe784/Todolist.ReadWrite"]
-        }
-    },
     graph: {
         me: {
             endpoint: "https://graph.microsoft.com/v1.0/me",
@@ -84,8 +77,6 @@ export const protectedResources = {
  */
 export const loginRequest = {
     scopes: [
-        ...protectedResources.apiTodoList.scopes.read,
-        ...protectedResources.apiTodoList.scopes.write,
         ...protectedResources.graph.me.scopes,
         ...protectedResources.graph.users.scopes
     ],

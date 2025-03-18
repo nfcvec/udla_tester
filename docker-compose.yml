@@ -16,12 +16,19 @@ services:
     build:
       context: ./cases_frontend
       dockerfile: Dockerfile
+      args:
+        - VITE_TITLE=UDLA Testing
+        - VITE_CLIENT_ID=38793d3a-08f2-48bb-b579-ba4220f9433d
+        - VITE_AUTHORITY=https://login.microsoftonline.com/2af6ae87-3287-4e29-a50a-680f5d852aa3
+        - VITE_POPUP_REDIRECT_URI=/redirect
+        - VITE_CASES_BACKEND_URL=https://udlatester-api.lerolero.com.ec
     environment:
       - NODE_ENV=production
+
     restart: always
     networks:
       - udlatester_network
-  
+
   db:
     container_name: udlatester_db
     image: postgres:latest
@@ -37,7 +44,7 @@ services:
 
 networks:
   udlatester_network:
-        external: true
-    
+    external: true
+
 volumes:
   udlatester_db_data:

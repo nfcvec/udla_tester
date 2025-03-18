@@ -111,6 +111,12 @@ export default function EnviarAsignaciones() {
       valueGetter: (params) => params?.nombre
     },
     {
+      field: "tipo_usuario",
+      headerName: "Tipo de Usuario",
+      width: 150,
+      valueGetter: (params) => params?.nombre
+    },
+    {
       field: "tipo_prueba",
       headerName: "Tipo de Prueba",
       width: 150,
@@ -119,12 +125,6 @@ export default function EnviarAsignaciones() {
     {
       field: "pantalla",
       headerName: "Pantalla",
-      width: 150,
-      valueGetter: (params) => params?.nombre
-    },
-    {
-      field: "tipo_usuario",
-      headerName: "Tipo de Usuario",
       width: 150,
       valueGetter: (params) => params?.nombre
     },
@@ -156,7 +156,8 @@ export default function EnviarAsignaciones() {
         ))}
       </Stack>
       {selectedTester?.displayName && (<>
-        <Box mt={2} display={'flex'} flexDirection={'column'} gap={2} height={400} width="100%">
+        <Box display={"flex"} flexDirection={"column"} gap={2} maxHeight={"calc(100vh - 300px)"}>
+
           <FormLabel>Casos asignados a {selectedTester.displayName}</FormLabel>
           <Box textAlign="right">
             <Button variant="contained" onClick={handleAgregarClick}>
@@ -167,7 +168,7 @@ export default function EnviarAsignaciones() {
             rows={
               Array.isArray(asignaciones) ? asignaciones.filter((asignacion) => asignacion.tester_id === selectedTester.id).map((asignacion) => ({ ...asignacion.caso_prueba, id: asignacion.id })) : []
             }
-            columns={columns}  
+            columns={columns}
             checkboxSelection={false}
           />
         </Box></>) || <Typography variant="body1">Seleccione un tester para ver sus asignaciones</Typography>}
