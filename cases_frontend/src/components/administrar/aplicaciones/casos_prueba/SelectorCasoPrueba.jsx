@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import apiCases from '../../../../services/apiCases';
 import { useAlert } from '../../../../contexts/AlertContext';
+import { Box, Button, FormControl, InputLabel, MenuItem, OutlinedInput, Select } from '@mui/material';
 
 export default function SelectorCasoPrueba({
     prefilters,
@@ -28,6 +29,12 @@ export default function SelectorCasoPrueba({
             ? [casoPrueba.id]
             : []
     );
+
+    const [selectedFilters, setSelectedFilters] = useState({
+        funcionalidad: [],
+        so: [],
+        tipo_usuario: [],
+    });
 
     const fetchData = async () => {
         const params = {
@@ -78,14 +85,6 @@ export default function SelectorCasoPrueba({
         }
     }, [selectionModel, data]);
 
-    const handleSortModelChange = (newSortModel) => {
-        setSortModel(newSortModel);
-    };
-
-    const handleFilterModelChange = useCallback((newFilterModel) => {
-        setFilterModel(newFilterModel);
-    }, []);
-
     const columns = [
         { field: 'funcionalidad', headerName: 'Funcionalidad', width: 150, valueGetter: (params) => params.nombre },
         { field: 'so', headerName: 'Sis. Op.', width: 150, valueGetter: (params) => params.nombre },
@@ -96,15 +95,70 @@ export default function SelectorCasoPrueba({
         { field: 'paso_a_paso', headerName: 'Paso a Paso', width: 200 },
     ];
 
+    const renderSelect = (label, filterKey, dataKey) => (
+        <FormControl sx={{ m: 1, width: '100%' }}>
+            <InputLabel>{label}</InputLabel>
+            <Select
+                multiple
+                value={selectedFilters[filterKey]}
+                onChange={(event) => {
+                    setSelectedFilters((prev) => ({
+                        ...prev,
+                        [filterKey]: event.target.value,
+                    }));
+                }}
+                label={label}
+                sx={{ width: '100%' }}
+            >
+                {[...new Set(
+                    data
+                        .filter((cp) => {
+                            const matchesFuncionalidad = selectedFilters.funcionalidad.length === 0 || selectedFilters.funcionalidad.includes(cp.funcionalidad.nombre);
+                            const matchesSO = selectedFilters.so.length === 0 || selectedFilters.so.includes(cp.so.nombre);
+                            const matchesTipoUsuario = selectedFilters.tipo_usuario.length === 0 || selectedFilters.tipo_usuario.includes(cp.tipo_usuario.nombre);
+                            return (
+                                (filterKey === 'funcionalidad' ? matchesSO && matchesTipoUsuario :
+                                filterKey === 'so' ? matchesFuncionalidad && matchesTipoUsuario :
+                                matchesFuncionalidad && matchesSO)
+                            );
+                        })
+                        .map((cp) => cp[dataKey].nombre)
+                )].map((value) => (
+                    <MenuItem key={value} value={value}>
+                        {value}
+                    </MenuItem>
+                ))}
+            </Select>
+        </FormControl>
+    );
+
     return (
+        <>
+        <Box
+            sx={{
+                display: 'flex',
+                flexDirection: { sm: 'column', md: 'row' },
+                justifyContent: 'between',
+                alignItems: 'center',
+                mb: 2,
+                gap: 2,
+            }}
+        >
+            {renderSelect('Funcionalidad', 'funcionalidad', 'funcionalidad')}
+            {renderSelect('Sistema Operativo', 'so', 'so')}
+            {renderSelect('Tipo de Usuario', 'tipo_usuario', 'tipo_usuario')}
+        </Box>
         <DataGrid
-            rows={data}
+            rows={data.filter((cp) => {
+                const matchesFuncionalidad = selectedFilters.funcionalidad.length === 0 || selectedFilters.funcionalidad.includes(cp.funcionalidad.nombre);
+                const matchesSO = selectedFilters.so.length === 0 || selectedFilters.so.includes(cp.so.nombre);
+                const matchesTipoUsuario = selectedFilters.tipo_usuario.length === 0 || selectedFilters.tipo_usuario.includes(cp.tipo_usuario.nombre);
+                return matchesFuncionalidad && matchesSO && matchesTipoUsuario;
+            })}
             columns={columns}
-            sortingMode="server"
-            sortModel={sortModel}
-            onSortModelChange={handleSortModelChange}
-            filterMode="server"
-            onFilterModelChange={handleFilterModelChange}
+            disableColumnFilter
+            disableColumnSorting
+            disableColumnMenu
             getRowId={(row) => row.id}
             checkboxSelection={isMultiple}
             disableRowSelectionOnClick={!isMultiple}
@@ -114,5 +168,6 @@ export default function SelectorCasoPrueba({
                 setSelectionModel(newSelection);
             }}
         />
+        </>
     );
 }
