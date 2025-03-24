@@ -18,10 +18,6 @@ const ListaProcesos = ({ accounts }) => {
     const fetchAsignaciones = async () => {
         const response = await apiCases.readAsignaciones({
             filters: JSON.stringify([{
-                field: "exclude_referenced",
-                operator: "equals",
-                value: true
-            }, {
                 field: "tester_id",
                 operator: "equals",
                 value: accounts[0].localAccountId
@@ -66,7 +62,11 @@ const ListaProcesos = ({ accounts }) => {
         setAsignacionesPorProbar(asignaciones
             .filter(asignacion => asignacion.proceso_id === selectedProceso.id)
             .filter(asignacion => asignacion.caso_prueba.funcionalidad.id === row.id)
-            .filter(asignacion => asignacion.resultados.length === 0)
+            .filter(asignacion => 
+            asignacion.resultados.length === 0 || 
+            asignacion.resultados.some(resultado => !resultado.ok_funcionamiento || !resultado.ok_ux) &&
+            !asignacion.resultados.some(resultado => resultado.ok_funcionamiento && resultado.ok_ux)
+            )
         );
     }
 
@@ -228,7 +228,13 @@ const DataGridAsignaciones = ({ asignacionesOrdenadas, handleRowClick }) => {
             field: 'resultados',
             headerName: 'Resultados',
             width: 200,
-            valueGetter: (params) => params.length ? "Completado" : "Pendiente"
+            valueGetter: (params) => {
+                if (!params.length) {
+                    return "Pendiente";
+                }
+                const hasErrors = params.some(resultado => !resultado.ok_funcionamiento || !resultado.ok_ux);
+                return hasErrors ? "Con errores" : "Completado";
+            }
         }
     ];
 
