@@ -24,6 +24,7 @@ import { ProfileRawContext } from "./pages/ProfileRawContext";
 import { ProfileUseMsalAuthenticationHook } from "./pages/ProfileUseMsalAuthenticationHook";
 import { Home } from './pages/Home';
 import CasosPorProbar from './components/probar/CasosPorProbar';
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const drawerWidth = 140;
 
@@ -39,9 +40,30 @@ function App({ pca }) {
                     <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' } }}>
                         <Container sx={{ flexGrow: 1, p: 3, width: { xs: '100%', sm: `calc(100% - ${drawerWidth}px)` } }}>
                             <Routes>
-                                <Route path="/administrar" element={<AdministrarCasos />} />
-                                <Route path="/procesos" element={<AdministrarProcesos />} />
-                                <Route path="/probar" element={<CasosPorProbar />} />
+                                <Route
+                                    path="/administrar"
+                                    element={
+                                        <ProtectedRoute role="Admin">
+                                            <AdministrarCasos />
+                                        </ProtectedRoute>
+                                    }
+                                />
+                                <Route
+                                    path="/procesos"
+                                    element={
+                                        <ProtectedRoute role="Admin">
+                                            <AdministrarProcesos />
+                                        </ProtectedRoute>
+                                    }
+                                />
+                                <Route
+                                    path="/probar"
+                                    element={
+                                        <ProtectedRoute role="Tester">
+                                            <CasosPorProbar />
+                                        </ProtectedRoute>
+                                    }
+                                />
                                 <Route path="/profile" element={<Profile />} />
                                 <Route path="/profileWithMsal" element={<ProfileWithMsal />} />
                                 <Route path="/profileRawContext" element={<ProfileRawContext />} />

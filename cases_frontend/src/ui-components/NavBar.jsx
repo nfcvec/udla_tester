@@ -14,10 +14,14 @@ import { Link as RouterLink } from "react-router-dom";
 import WelcomeName from "./WelcomeName";
 import SignInSignOutButton from "./SignInSignOutButton";
 import MenuIcon from "@mui/icons-material/Menu";
+import { useMsal } from "@azure/msal-react";
 
 const NavBar = () => {
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
+    const { accounts } = useMsal();
+    const user = accounts[0];
+    const roles = user?.idTokenClaims?.roles || [];
 
     const handleMenuClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -55,15 +59,21 @@ const NavBar = () => {
                             horizontal: "left",
                         }}
                     >
-                        <MenuItem onClick={handleMenuClose} component={RouterLink} to="/administrar">
-                            Administrar casos de prueba
-                        </MenuItem>
-                        <MenuItem onClick={handleMenuClose} component={RouterLink} to="/procesos">
-                            Administrar procesos de prueba
-                        </MenuItem>
-                        <MenuItem onClick={handleMenuClose} component={RouterLink} to="/probar">
-                            Probar casos asignados
-                        </MenuItem>
+                        {roles.includes("Admin") && (
+                            <>
+                                <MenuItem onClick={handleMenuClose} component={RouterLink} to="/administrar">
+                                    Administrar casos de prueba
+                                </MenuItem>
+                                <MenuItem onClick={handleMenuClose} component={RouterLink} to="/procesos">
+                                    Administrar procesos de prueba
+                                </MenuItem>
+                            </>
+                        )}
+                        {roles.includes("Tester") && (
+                            <MenuItem onClick={handleMenuClose} component={RouterLink} to="/probar">
+                                Probar casos asignados
+                            </MenuItem>
+                        )}
                     </Menu>
                     <Typography style={{ flexGrow: 1 }}>
                         <Link
