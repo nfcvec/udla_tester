@@ -18,7 +18,7 @@ services:
       dockerfile: Dockerfile
       args:
         - VITE_TITLE=UDLA Testing
-        - VITE_CLIENT_ID=38793d3a-08f2-48bb-b579-ba4220f9433d
+        - VITE_CLIENT_ID=ec19bb79-9b8b-4f1d-ae17-5d1e4e8d3b24
         - VITE_AUTHORITY=https://login.microsoftonline.com/2af6ae87-3287-4e29-a50a-680f5d852aa3
         - VITE_POPUP_REDIRECT_URI=/redirect
         - VITE_CASES_BACKEND_URL=https://udlatester-api.lerolero.com.ec
