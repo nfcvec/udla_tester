@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import Button from '@mui/material/Button';
-import SelectorProcesos from '../administrar/procesos/SelectorProcesos';
+import SelectorProcesos from './SelectorProcesos';
 import ProcesoStepper from './wizardProceso/ProcesoStepper';
 import { ProcesoProvider, useProceso } from './context/ProcesoContext';
-import { Box, FormLabel, IconButton, TextField, Typography } from '@mui/material';
-import { callMsGraphUserDetails } from '../../utils/MsGraphUserDetails';
+import { Box, IconButton, Typography } from '@mui/material';
 import EnviarAsignaciones from './EnviarAsignaciones';
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 

@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, GridActionsCellItem } from "@mui/x-data-grid";
 import { Box } from "@mui/material";
-import apiCases from "../../../services/apiCases";
-import { useAlert } from "../../../contexts/AlertContext";
+import apiCases from "../../services/apiCases";
+import { useAlert } from "../../contexts/AlertContext";
+import ResultadosProceso from "./ResultadosProceso";
+import ExcelIcon from "@mui/icons-material/Description";
 
 const SelectorProcesos = ({ isMultiple, setProceso, setProcesos }) => {
     const [data, setData] = useState([]);
@@ -10,6 +12,8 @@ const SelectorProcesos = ({ isMultiple, setProceso, setProcesos }) => {
 
     const [sortModel, setSortModel] = useState([]);
     const [filterModel, setFilterModel] = useState({});
+
+    const [open, setOpen] = useState(false);
 
     const showAlert = useAlert();
 
@@ -57,7 +61,7 @@ const SelectorProcesos = ({ isMultiple, setProceso, setProcesos }) => {
     const columns = [
         { field: "id", headerName: "ID", width: 90 },
         { field: "nombre", headerName: "Nombre", width: 150 },
-        { field: "descripcion", headerName: "Descripción",},
+        { field: "descripcion", headerName: "Descripción" },
         { field: "funcionalidades_proceso", headerName: "Funcionalidades", valueGetter: (params) => params.length },
         { field: "testers_proceso", headerName: "Testers", valueGetter: (params) => params.length },
     ];

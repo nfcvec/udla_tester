@@ -6,14 +6,32 @@ import { useProceso } from "./context/ProcesoContext";
 import apiCases from "../../services/apiCases";
 import { deepOrange, deepPurple } from '@mui/material/colors';
 import SelectorCasoPrueba from "../administrar/aplicaciones/casos_prueba/SelectorCasoPrueba";
+import ResultadosProceso from "./ResultadosProceso";
 
 export default function EnviarAsignaciones() {
   const { proceso, setProceso } = useProceso();
   const [testers, setTesters] = useState([]);
   const [casosPrueba, setCasosPrueba] = useState([]);
   const [open, setOpen] = useState(false);
+  const [openResultados, setOpenResultados] = useState(false);
   const [selectedTester, setSelectedTester] = useState(null)
   const [asignaciones, setAsignaciones] = useState([]);
+  const [resultados, setResultados] = useState([]);
+
+  const fetchResultados = async () => {
+    const resultados = [];
+    for (const asignacion of asignaciones) {
+      for (const resultado of asignacion.resultados) {
+        resultados.push({
+          ...resultado,
+          tester: testers.find(tester => tester.id === asignacion.tester_id),
+          ...asignacion.caso_prueba,
+          id: resultado.id,
+        });
+      }
+    }
+    setResultados(resultados);
+  }
 
   const fetchAsignacionesProceso = async () => {
     const asignaciones = await apiCases.readAsignaciones({
@@ -57,6 +75,10 @@ export default function EnviarAsignaciones() {
     fetchTesters();
     fetchAsignacionesProceso();
   }, [proceso]);
+
+  useEffect(() => {
+    fetchResultados();
+  }, [asignaciones, testers]);
 
   const handleAgregarClick = () => {
     setOpen(true);
@@ -136,7 +158,7 @@ export default function EnviarAsignaciones() {
   ];
 
   return (
-    <>
+    <><Button variant="contained" onClick={() => setOpenResultados(true)}>Ver Resultados</Button>
       <Typography variant="h6">Enviar Asignaciones</Typography>
       <FormLabel>Testers del proceso</FormLabel>
       <Stack direction="row" spacing={2}>
@@ -172,6 +194,7 @@ export default function EnviarAsignaciones() {
             checkboxSelection={false}
           />
         </Box></>) || <Typography variant="body1">Seleccione un tester para ver sus asignaciones</Typography>}
+        <ResultadosProceso open={openResultados} setOpen={setOpenResultados} resultados={resultados} />
 
       <Dialog open={open} onClose={() => setOpen(false)} maxWidth="xl" fullWidth>
         <Box p={2} display={'flex'} flexDirection={'column'} gap={2} sx={{
