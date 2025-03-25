@@ -8,6 +8,7 @@ import { Container, Stack } from "@mui/material";
 export function Home() {
   const { accounts } = useMsal();
   const user = accounts[0];
+  const roles = user?.idTokenClaims?.roles || [];
 
   return (
     <>
@@ -16,18 +17,23 @@ export function Home() {
           <Typography variant="h6">
             ¡Bienvenido a la aplicación de clasificación de casos de prueba!
           </Typography>
-          {/* <pre>{JSON.stringify(user.idTokenClaims.roles)}</pre> */}
           {/* <pre>{JSON.stringify(user, null, 2)}</pre> */}
           <Stack spacing={2} direction="row">
-            <Button component={RouterLink} to="/administrar">
-              Administrar casos de prueba
-            </Button>
-            <Button component={RouterLink} to="/procesos">
-              Administrar procesos de prueba
-            </Button>
-            <Button component={RouterLink} to="/probar">
-              Probar casos asignados
-            </Button>
+            {roles.includes("Admin") && (
+              <>
+                <Button component={RouterLink} to="/administrar">
+                  Administrar casos de prueba
+                </Button>
+                <Button component={RouterLink} to="/procesos">
+                  Administrar procesos de prueba
+                </Button>
+              </>
+            )}
+            {roles.includes("Tester") && (
+              <Button component={RouterLink} to="/probar">
+                Probar casos asignados
+              </Button>
+            )}
           </Stack>
         </Container>
       </AuthenticatedTemplate>
