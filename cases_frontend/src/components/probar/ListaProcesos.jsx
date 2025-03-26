@@ -10,7 +10,6 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 const ListaProcesos = ({ accounts }) => {
     const [asignaciones, setAsignaciones] = useState([]);
     const [asignacionesOrdenadas, setAsignacionesOrdenadas] = useState([]);
-    const [asignacionesPorProbar, setAsignacionesPorProbar] = useState([]);
     const [selectedProceso, setSelectedProceso] = useState(null);
     const [selectedFuncionalidad, setSelectedFuncionalidad] = useState(null);
     const [open, setOpen] = useState(false);
@@ -21,6 +20,11 @@ const ListaProcesos = ({ accounts }) => {
                 field: "tester_id",
                 operator: "equals",
                 value: accounts[0].localAccountId
+            },
+            {
+                field: "pending",
+                operator: "equals",
+                value: true
             }])
         });
         setAsignaciones(response.data.data);
@@ -31,20 +35,25 @@ const ListaProcesos = ({ accounts }) => {
     }, [accounts]);
 
     useEffect(() => {
-        setAsignacionesOrdenadas(asignaciones.sort(
-            (a, b) => a.caso_prueba.funcionalidad.nombre.localeCompare(b.caso_prueba.funcionalidad.nombre)
-        ).sort(
-            (a, b) => {
-                if (a.resultados.length === 0 && b.resultados.length > 0) return -1;
-                if (a.resultados.length > 0 && b.resultados.length === 0) return 1;
-                return 0;
+        setAsignacionesOrdenadas(asignaciones.sort((a, b) => {
+            const aHasResults = a.resultados && a.resultados.length > 0;
+            const bHasResults = b.resultados && b.resultados.length > 0;
+
+            if (aHasResults && bHasResults) {
+                const aLatestResult = new Date(Math.max(...a.resultados.map(r => new Date(r.created_at))));
+                const bLatestResult = new Date(Math.max(...b.resultados.map(r => new Date(r.created_at))));
+                return aLatestResult - bLatestResult;
             }
-        ));
+
+            if (aHasResults && !bHasResults) return 1;
+            if (!aHasResults && bHasResults) return -1;
+
+            return a.caso_prueba.funcionalidad.nombre.localeCompare(b.caso_prueba.funcionalidad.nombre);
+        }));
     }, [asignaciones]);
 
     const handleRowClick = (row) => {
         const asignacion = asignaciones.find(asignacion => asignacion.id === row.id);
-        setAsignacionesPorProbar([asignacion]);
         setOpen(true);
     }
 
@@ -59,16 +68,7 @@ const ListaProcesos = ({ accounts }) => {
 
     const handleSelectedFuncionalidad = (row) => {
         setSelectedFuncionalidad(row);
-        setAsignacionesPorProbar(asignaciones
-            .filter(asignacion => asignacion.proceso_id === selectedProceso.id)
-            .filter(asignacion => asignacion.caso_prueba.funcionalidad.id === row.id)
-            .filter(asignacion => 
-            asignacion.resultados.length === 0 || 
-            asignacion.resultados.some(resultado => !resultado.ok_funcionamiento || !resultado.ok_ux) &&
-            !asignacion.resultados.some(resultado => resultado.ok_funcionamiento && resultado.ok_ux)
-            )
-        );
-    }
+    };
 
     const handleBack = () => {
         if (selectedFuncionalidad) {
@@ -112,7 +112,7 @@ const ListaProcesos = ({ accounts }) => {
                     handleRowClick={handleRowClick}
                 />
                 <ProbarCasosWizard
-                    asignaciones={asignacionesPorProbar}
+                    asignaciones={asignaciones}
                     open={open}
                     setOpen={setOpen}
                     fetchAsignaciones={fetchAsignaciones}
@@ -123,17 +123,11 @@ const ListaProcesos = ({ accounts }) => {
 }
 
 const DataGridProcesos = ({ asignaciones, handleSelectedProceso }) => {
-    const [asignacionesPendientes, setAsignacionesPendientes] = useState(asignaciones.filter(asignacion => asignacion.resultados.length === 0));
     const [procesos, setProcesos] = useState([]);
 
     useEffect(() => {
-        setAsignacionesPendientes(asignaciones.filter(asignacion => asignacion.resultados.length === 0));
-    }, [asignaciones]);
-
-    useEffect(() => {
         const fetchProcesos = async () => {
-            const procesosIds = [...new Set(asignacionesPendientes.map(asignacion => asignacion.proceso_id))];
-            console.log(procesosIds);
+            const procesosIds = [...new Set(asignaciones.map(asignacion => asignacion.proceso_id))];
             const procesosList = [];
             for (const procesoId of procesosIds) {
                 const response = await apiCases.readProceso(procesoId);
@@ -142,7 +136,7 @@ const DataGridProcesos = ({ asignaciones, handleSelectedProceso }) => {
             setProcesos(procesosList);
         }
         fetchProcesos();
-    }, [asignacionesPendientes]);
+    }, [asignaciones]);
 
     const columns = [
         { field: 'id', headerName: 'ID', width: 100 },
@@ -156,12 +150,15 @@ const DataGridProcesos = ({ asignaciones, handleSelectedProceso }) => {
             <Typography variant="h6">Selecciona un proceso</Typography>
             <Typography variant="body2">Selecciona un proceso para ver las funcionalidades y casos de prueba pendientes</Typography>
             <Typography variant="body2">Haz clic en una fila para seleccionar un proceso</Typography>
+            
             <DataGrid
                 rows={procesos.map(proceso => ({
                     id: proceso.id,
                     nombre: proceso.nombre,
                     descripcion: proceso.descripcion,
-                    pendientes: asignacionesPendientes.filter(asignacion => asignacion.proceso_id === proceso.id).length
+                    pendientes: asignaciones.filter(asignacion => 
+                        asignacion.proceso_id === proceso.id
+                    ).length
                 }))}
                 columns={columns}
                 pageSize={5}
@@ -171,7 +168,6 @@ const DataGridProcesos = ({ asignaciones, handleSelectedProceso }) => {
             />
         </Box>
     </>
-
     );
 }
 
@@ -203,7 +199,7 @@ const DataGridFuncionalidades = ({ asignaciones, handleSelectedFuncionalidad, ha
                 rows={funcionalidades.map(funcionalidad => ({
                     id: funcionalidad.id,
                     nombre: funcionalidad.nombre,
-                    pendientes: asignaciones.filter(asignacion => asignacion.caso_prueba.funcionalidad.id === funcionalidad.id && asignacion.resultados.length === 0).length
+                    pendientes: asignaciones.filter(asignacion => asignacion.caso_prueba.funcionalidad.id === funcionalidad.id).length
                 }))}
                 columns={columns}
                 pageSize={5}
@@ -229,11 +225,15 @@ const DataGridAsignaciones = ({ asignacionesOrdenadas, handleRowClick }) => {
             headerName: 'Resultados',
             width: 200,
             valueGetter: (params) => {
-                if (!params.length) {
+                if (!params || !params) {
                     return "Pendiente";
                 }
-                const hasErrors = params.some(resultado => !resultado.ok_funcionamiento || !resultado.ok_ux);
-                return hasErrors ? "Con errores" : "Completado";
+                const resultados = params;
+                if (resultados.length === 0) {
+                    return "Pendiente";
+                }
+                const allSuccess = resultados.some(resultado => resultado.ok_funcionamiento && resultado.ok_ux);
+                return allSuccess ? "Completado" : "Con errores";
             }
         }
     ];

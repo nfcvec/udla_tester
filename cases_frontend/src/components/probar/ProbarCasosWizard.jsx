@@ -13,7 +13,6 @@ const ProbarCasosWizard = ({ asignaciones, open, setOpen, fetchAsignaciones }) =
     const [isPreviewing, setIsPreviewing] = useState(false);
     const [isFillingForm, setIsFillingForm] = useState(false);
     const [elapsedtime, setElapsedtime] = useState(0);
-    const [currentCaseIndex, setCurrentCaseIndex] = useState(0);
     const [result, setResult] = useState({
         ok_funcionamiento: false,
         ok_ux: false,
@@ -23,7 +22,6 @@ const ProbarCasosWizard = ({ asignaciones, open, setOpen, fetchAsignaciones }) =
 
     useEffect(() => {
         if (open) {
-            setCurrentCaseIndex(0);
             setElapsedtime(0);
             setResult({
                 ok_funcionamiento: false,
@@ -47,14 +45,14 @@ const ProbarCasosWizard = ({ asignaciones, open, setOpen, fetchAsignaciones }) =
     }, [isFillingForm]);
 
     useEffect(() => {
-        if (currentCaseIndex >= asignaciones.length) {
+        if (asignaciones.length === 0) {
             setOpen(false);
+        } else {
+            setIsViewingInfo(true);
+            setIsPreviewing(false);
+            setIsFillingForm(false);
         }
-
-        setIsViewingInfo(true);
-        setIsPreviewing(false);
-        setIsFillingForm(false);
-    }, [currentCaseIndex, asignaciones, setOpen]);
+    }, [asignaciones, setOpen]);
 
     const handleViewInfo = () => {
         setIsViewingInfo(true);
@@ -85,7 +83,6 @@ const ProbarCasosWizard = ({ asignaciones, open, setOpen, fetchAsignaciones }) =
             observaciones: "",
             id_usuario_prueba: ""
         });
-        setCurrentCaseIndex((prevIndex) => prevIndex + 1);
     };
 
     const handleSubmit = async () => {
@@ -102,7 +99,7 @@ const ProbarCasosWizard = ({ asignaciones, open, setOpen, fetchAsignaciones }) =
         }
         try {
             const response = await apiCases.createResultado({
-                asignacion_id: asignaciones[currentCaseIndex].id,
+                asignacion_id: asignaciones[0].id,
                 id_usuario_prueba: result.id_usuario_prueba,
                 tiempo_resolucion: elapsedtime,
                 ok_funcionamiento: result.ok_funcionamiento,
@@ -138,7 +135,7 @@ const ProbarCasosWizard = ({ asignaciones, open, setOpen, fetchAsignaciones }) =
         setOpen(false);
     };
 
-    const currentCase = asignaciones[currentCaseIndex];
+    const currentCase = asignaciones[0];
 
     return (
         <>
@@ -150,7 +147,7 @@ const ProbarCasosWizard = ({ asignaciones, open, setOpen, fetchAsignaciones }) =
             >
                 <Box display="flex" justifyContent="space-between" alignItems="center" p={2}>
                     <DialogTitle>
-                        {`Probando caso ${currentCaseIndex + 1} de ${asignaciones.length}`}
+                        {`Probando caso 1 de ${asignaciones.length}`}
                     </DialogTitle>
                     <DialogActions>
                         <Button onClick={handleExit}>Salir</Button>

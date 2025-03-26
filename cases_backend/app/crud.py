@@ -3,6 +3,7 @@ from sqlalchemy import asc, desc
 from sqlalchemy.orm import Session
 from . import models, schemas
 from sqlalchemy.orm import joinedload
+from sqlalchemy.sql import exists
 
 
 def apply_filters(query, model, filters):
@@ -558,19 +559,25 @@ def get_asignacion(db: Session, asignacion_id: int):
 def get_asignaciones(db: Session, filters: list = [], sorts: list = [], pagination: dict = {}):
     query = db.query(models.Asignacion)
     
-    # Check for special filter to exclude referenced asignaciones
-    exclude_referenced = False
+    # Check for special filter to include only pending asignaciones
+    pending_filter = False
     for filter in filters:
-        if filter.get('field') == 'exclude_referenced' and filter.get('value') is True:
-            exclude_referenced = True
+        if filter.get('field') == 'pending' and filter.get('value') is True:
+            pending_filter = True
             filters.remove(filter)
             break
+
+    if pending_filter:
+        # Excluir asignaciones con al menos un resultado exitoso
+        subquery = db.query(models.Resultado.id).filter(
+            models.Resultado.asignacion_id == models.Asignacion.id,
+            models.Resultado.ok_funcionamiento == True,
+            models.Resultado.ok_ux == True
+        ).correlate(models.Asignacion).exists()
+        
+        query = query.filter(~subquery)
     
     query = apply_filters(query, models.Asignacion, filters)
-    
-    if exclude_referenced:
-        query = query.outerjoin(models.Resultado).filter(models.Resultado.id == None)
-    
     total = query.count()
     query = apply_sort(query, models.Asignacion, sorts)
     query = apply_pagination(query, pagination)

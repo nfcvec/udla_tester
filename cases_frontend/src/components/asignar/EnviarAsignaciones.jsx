@@ -215,7 +215,7 @@ export default function EnviarAsignaciones() {
             ]
           } casosPrueba={casosPrueba} setCasosPrueba={setCasosPrueba} />
           <Box textAlign="right">
-            <Button variant="contained" onClick={handleAsignarClick}>
+            <Button variant="contained" onClick={handleAsignarClick} disabled={casosPrueba.length === 0}>
               Enviar
             </Button>
           </Box>
